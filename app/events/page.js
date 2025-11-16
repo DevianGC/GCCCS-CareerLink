@@ -21,10 +21,8 @@ export default function EventsPage() {
     }
 
     try {
-      const eventsQuery = query(
-        collection(firebaseDb, 'events'),
-        where('status', 'in', ['Upcoming', 'Ongoing'])
-      );
+      // Simpler query - fetch all events and filter client-side
+      const eventsQuery = query(collection(firebaseDb, 'events'));
 
       const unsubscribe = onSnapshot(
         eventsQuery,
@@ -34,6 +32,11 @@ export default function EventsPage() {
               id: doc.id,
               ...doc.data()
             }))
+            .filter(event => {
+              // Filter for upcoming and ongoing events
+              const status = event.status?.toLowerCase();
+              return status === 'upcoming' || status === 'ongoing';
+            })
             .sort((a, b) => {
               const dateA = a.date ? new Date(a.date) : new Date(0);
               const dateB = b.date ? new Date(b.date) : new Date(0);
@@ -45,35 +48,8 @@ export default function EventsPage() {
         },
         (err) => {
           console.error('Error fetching events:', err);
-          // Fallback: fetch all events and filter client-side
-          const fallbackQuery = query(
-            collection(firebaseDb, 'events')
-          );
-          const fallbackUnsubscribe = onSnapshot(
-            fallbackQuery,
-            (snapshot) => {
-              const eventsData = snapshot.docs
-                .map(doc => ({
-                  id: doc.id,
-                  ...doc.data()
-                }))
-                .sort((a, b) => {
-                  const dateA = a.date ? new Date(a.date) : new Date(0);
-                  const dateB = b.date ? new Date(b.date) : new Date(0);
-                  return dateA - dateB;
-                })
-                .filter(event => event.status === 'Upcoming' || event.status === 'Ongoing');
-              setEvents(eventsData);
-              setLoading(false);
-              setError(null);
-            },
-            (fallbackErr) => {
-              console.error('Fallback error:', fallbackErr);
-              setError('Failed to load events. Please try again.');
-              setLoading(false);
-            }
-          );
-          return () => fallbackUnsubscribe();
+          setError('Failed to load events. Please try again.');
+          setLoading(false);
         }
       );
 
