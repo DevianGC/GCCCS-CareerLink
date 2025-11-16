@@ -17,10 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "GCCCS CareerLink - Gordon College CCS Graduate Employment & Development Portal",
   description: "A career support and placement platform for students, graduates, and alumni of Gordon College CCS",
-  icons: {
-    icon: '/GCLOGO.png',
-    apple: '/GCLOGO.png',
-  },
 };
 
 // Add preconnect for performance optimization
