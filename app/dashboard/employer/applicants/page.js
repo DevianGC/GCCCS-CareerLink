@@ -14,9 +14,6 @@ export default function EmployerApplicants() {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
 
-  const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState(null);
-
   // Get current user ID
   useEffect(() => {
     const unsubscribe = firebaseAuth?.onAuthStateChanged((user) => {
