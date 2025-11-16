@@ -42,7 +42,13 @@ export default function AboutPage() {
             {/* Team Member 1 */}
             <div className={styles.teamMember} style={{"--animation-order": 1}}>
               <div className={styles.teamMemberImage}>
-                <div className={styles.teamMemberImagePlaceholder}>JG</div>
+                <Image 
+                  src="/Janico.png" 
+                  alt="Janico Gyle Sorio"
+                  width={200}
+                  height={200}
+                  className={styles.teamImage}
+                />
               </div>
               <h3 className={styles.teamMemberName}>Janico Gyle Sorio</h3>
               <p className={styles.teamMemberRole}>Backend Developer</p>
@@ -54,7 +60,13 @@ export default function AboutPage() {
             {/* Team Member 2 */}
             <div className={styles.teamMember} style={{"--animation-order": 2}}>
               <div className={styles.teamMemberImage}>
-                <div className={styles.teamMemberImagePlaceholder}>JI</div>
+                <Image 
+                  src="/Devian.jpg" 
+                  alt="John Ian Ormides"
+                  width={200}
+                  height={200}
+                  className={styles.teamImage}
+                />
               </div>
               <h3 className={styles.teamMemberName}>John Ian Ormides</h3>
               <p className={styles.teamMemberRole}>Frontend Developer</p>
