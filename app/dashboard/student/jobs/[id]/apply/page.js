@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '../../../../../components/Dashboard/DashboardLayout.js';
-import Card from '../../../../../components/UI/Card/Card.js';
-import Button from '../../../../../components/UI/Button/Button.js';
+import DashboardLayout from '../../../../../components/Dashboard/DashboardLayout';
+import Card from '../../../../../components/UI/Card/Card';
+import Button from '../../../../../components/UI/Button/Button';
 
 export default function JobApplyPage({ params }) {
   const { id } = params;
