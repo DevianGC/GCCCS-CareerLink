@@ -65,7 +65,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Only students can request mentorship' }, { status: 403 });
     }
 
-    const data = await request.json();
+    const data = await req.json();
     const { mentorId, topic, preferredDate, preferredTime, duration, sessionType, message } = data;
 
     if (!mentorId || !topic || !preferredDate) {

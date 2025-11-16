@@ -33,10 +33,21 @@ export default function EmployerRegister() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    
+    // Special handling for phone number
+    if (name === 'phone') {
+      // Only allow digits and limit to 11 characters
+      const phoneValue = value.replace(/\D/g, '').slice(0, 11);
+      setFormData({
+        ...formData,
+        [name]: phoneValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === 'checkbox' ? checked : value,
+      });
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -89,6 +100,12 @@ export default function EmployerRegister() {
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
+    } else if (!/^\d+$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must contain only numbers';
+    } else if (formData.phone.length > 11) {
+      newErrors.phone = 'Phone number must not exceed 11 digits';
+    } else if (formData.phone.length < 10) {
+      newErrors.phone = 'Phone number must be at least 10 digits';
     }
 
     if (!formData.password) {

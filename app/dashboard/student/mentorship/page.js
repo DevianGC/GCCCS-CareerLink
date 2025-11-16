@@ -98,11 +98,13 @@ export default function MentorshipPage() {
         });
         fetchMyRequests();
       } else {
-        alert('Failed to send request');
+        const errorData = await response.json();
+        console.error('Failed to send request:', errorData);
+        alert(`Failed to send request: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error submitting request:', error);
-      alert('An error occurred');
+      alert(`An error occurred while sending request: ${error.message}`);
     } finally {
       setSubmitting(false);
     }

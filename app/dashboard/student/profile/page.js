@@ -50,10 +50,21 @@ export default function StudentProfile() {
   
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    
+    // Special handling for phone number
+    if (name === 'phone') {
+      // Only allow digits and limit to 11 characters
+      const phoneValue = value.replace(/\D/g, '').slice(0, 11);
+      setFormData({
+        ...formData,
+        [name]: phoneValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   // Load profile from backend for current user

@@ -152,7 +152,14 @@ export default function AlumniProfile() {
   };
 
   const handleInputChange = (field, value) => {
-    setProfileData(prev => ({ ...prev, [field]: value }));
+    // Special handling for phone number
+    if (field === 'phone') {
+      // Only allow digits and limit to 11 characters
+      const phoneValue = value.replace(/\D/g, '').slice(0, 11);
+      setProfileData(prev => ({ ...prev, [field]: phoneValue }));
+    } else {
+      setProfileData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSaveProfile = async () => {

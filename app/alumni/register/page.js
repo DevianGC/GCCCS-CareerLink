@@ -28,10 +28,21 @@ export default function AlumniRegister() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    
+    // Special handling for phone number
+    if (name === 'phone') {
+      // Only allow digits and limit to 11 characters
+      const phoneValue = value.replace(/\D/g, '').slice(0, 11);
+      setFormData({
+        ...formData,
+        [name]: phoneValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -66,6 +77,17 @@ export default function AlumniRegister() {
 
     if (!formData.major.trim()) {
       newErrors.major = 'Major is required';
+    }
+
+    // Validate phone number if provided
+    if (formData.phone && formData.phone.trim()) {
+      if (!/^\d+$/.test(formData.phone)) {
+        newErrors.phone = 'Phone number must contain only digits';
+      } else if (formData.phone.length < 10) {
+        newErrors.phone = 'Phone number must be at least 10 digits';
+      } else if (formData.phone.length > 11) {
+        newErrors.phone = 'Phone number must not exceed 11 digits';
+      }
     }
 
     if (!formData.password) {
