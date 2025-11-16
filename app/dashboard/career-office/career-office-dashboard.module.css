@@ -1,0 +1,552 @@
+:root {
+  --primary-color: #4a6cf7;
+  --primary-hover: #3a5bd9;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --body-bg: #ffffff;
+}
+
+.dashboardContainer {
+  padding: 1rem;
+  background-color: var(--body-bg);
+  min-height: 100vh;
+  padding-top: 0rem; /* Increased padding to account for fixed navbar and dashboard header */
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dashboardTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.dashboardActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.actionButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.statIcon {
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: gray;
+}
+
+.statInfo {
+  flex: 1;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+}
+
+/* Dashboard Grid */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.dashboardCard {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--dark-color);
+}
+
+.cardLink {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+/* Applications List */
+.applicationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.applicationItem {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--light-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.applicationItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.applicationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.applicationStudent {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusPending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.statusForwarded {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.statusInterview {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.statusRejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.statusOffer {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.applicationPosition {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.applicationCompany {
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.applicationMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+}
+
+.applicationActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.applicationActions .actionButton {
+  padding: 0.25rem;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: color 0.2s;
+}
+
+.applicationActions .actionButton:hover {
+  color: var(--primary-color);
+}
+
+/* Interviews List */
+.interviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.interviewItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--light-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.interviewItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.interviewDate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 0.375rem;
+  margin-right: 1rem;
+}
+
+.interviewDay {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.interviewMonth {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.interviewDetails {
+  flex: 1;
+}
+
+.interviewStudent {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.interviewPosition {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.interviewSchedule {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+}
+
+.interviewTime, .interviewLocation {
+  display: flex;
+  align-items: center;
+}
+
+.interviewActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.interviewActions .actionButton {
+  padding: 0.25rem;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: color 0.2s;
+}
+
+.interviewActions .actionButton:hover {
+  color: var(--primary-color);
+}
+
+/* Jobs List */
+.jobsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jobItem {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--light-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.jobItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.jobHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.jobTitle {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.jobApplications {
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.jobCompany {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.jobLocation {
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.jobMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+}
+
+.jobActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.jobActions .actionButton {
+  padding: 0.25rem;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: color 0.2s;
+}
+
+.jobActions .actionButton:hover {
+  color: var(--primary-color);
+}
+
+/* Quick Actions */
+.quickActionsList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.quickActionItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--light-color);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.quickActionItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color);
+}
+
+.quickActionIcon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  color: var(--primary-color);
+}
+
+.quickActionContent {
+  flex: 1;
+}
+
+.quickActionTitle {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.quickActionDescription {
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quickActionsList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0.5rem;
+  }
+  .dashboardTitle {
+    font-size: 1.25rem;
+  }
+  .dashboardActions {
+    gap: 0.5rem;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .statCard {
+    padding: 0.75rem;
+  }
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .dashboardCard {
+    padding: 0.75rem;
+  }
+  .cardHeader, .cardBody {
+    padding: 0.75rem;
+  }
+  .actionButton {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.95rem;
+  }
+}
+@media (max-width: 480px) {
+  .dashboardHeader {
+    gap: 0.5rem;
+    padding: 0.5rem 0.25rem;
+  }
+  .dashboardTitle {
+    font-size: 1rem;
+  }
+  .dashboardActions {
+    gap: 0.25rem;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .statCard {
+    padding: 0.5rem;
+  }
+  .dashboardGrid {
+    gap: 0.5rem;
+  }
+  .dashboardCard {
+    padding: 0.5rem;
+  }
+  .cardHeader, .cardBody {
+    padding: 0.5rem;
+  }
+  .actionButton {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-size: 0.95rem;
+}

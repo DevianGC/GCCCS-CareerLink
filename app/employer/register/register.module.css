@@ -1,0 +1,296 @@
+.registerPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 160px); /* Account for navbar and footer */
+  padding: 3rem 1rem;
+  background-color: var(--gray-100);
+}
+
+.registerContainer {
+  padding: 15px 0 0 0;
+  width: 100%;
+  max-width: 600px;
+}
+
+.registerCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+}
+
+.registerHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Step Indicator */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.stepActive .stepNumber {
+  background:orange;
+  color: rgb(255, 255, 255);
+}
+
+.stepLabel {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+  font-weight: 500;
+  text-align: center;
+}
+
+.stepActive .stepLabel {
+  color: orange;
+  font-weight: 600;
+}
+
+.stepConnector {
+  width: 60px;
+  height: 2px;
+  background: var(--gray-300);
+  margin: 0 1rem;
+}
+
+.registerTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.registerSubtitle {
+  color: var(--gray-600);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+}
+
+.sectionHeader {
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.sectionHeader:first-of-type {
+  margin-top: 0;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkboxGroup {
+  margin: 1rem 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.checkboxText {
+  color: var(--gray-700);
+}
+
+.link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.errorText {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: #fef2f2;
+  border-radius: 4px;
+  border: 1px solid #fecaca;
+}
+
+.registerFooter {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--gray-600);
+}
+
+.loginLink {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+}
+
+.otherLogins {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.otherLoginLink {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.otherLoginLink a {
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+.otherLoginLink a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+/* Button Group */
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.backButton {
+  flex: 1;
+}
+
+.submitButton {
+  flex: 2;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .registerContainer {
+    max-width: 100%;
+  }
+  
+  .registerCard {
+    padding: 2rem;
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .registerTitle {
+    font-size: 1.75rem;
+  }
+  
+  .registerSubtitle {
+    font-size: 0.875rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1rem;
+  }
+  
+  .stepConnector {
+    width: 40px;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .backButton,
+  .submitButton {
+    flex: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .registerCard {
+    padding: 1.5rem;
+  }
+  
+  .registerTitle {
+    font-size: 1.5rem;
+  }
+  
+  .sectionHeader {
+    margin: 1rem 0 0.75rem 0;
+  }
+  
+  .checkboxLabel {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .registerPage {
+    padding: 2rem 0.5rem;
+  }
+  
+  .registerCard {
+    padding: 1rem;
+  }
+  
+  .registerTitle {
+    font-size: 1.375rem;
+  }
+  
+  .registerSubtitle {
+    font-size: 0.8125rem;
+  }
+}

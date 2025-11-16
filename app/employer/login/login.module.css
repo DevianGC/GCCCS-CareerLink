@@ -1,0 +1,152 @@
+.loginPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 160px); /* Account for navbar and footer */
+  padding: 3rem 1rem;
+  background-color: var(--gray-100);
+}
+
+.loginContainer {
+  padding: 15px 0 0 0 ;
+  width: 100%;
+  max-width: 500px;
+}
+
+.loginCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+}
+
+.loginHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.loginTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.loginSubtitle {
+  color: var(--gray-600);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+}
+
+.errorMessage {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.forgotPassword {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.forgotLink {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.errorText {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: #fef2f2;
+  border-radius: 4px;
+  border: 1px solid #fecaca;
+}
+
+.loginFooter {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--gray-600);
+}
+
+.registerLink {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+.otherLogins {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.otherLoginLink {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.otherLoginLink a {
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+.otherLoginLink a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #666 !important;
+  font-weight: 400 !important;
+  font-size: 0.9rem;
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .loginCard {
+    padding: 1.5rem;
+  }
+  
+  .loginTitle {
+    font-size: 1.75rem;
+  }
+  
+  .loginSubtitle {
+    font-size: 0.875rem;
+  }
+  
+  .otherLogins {
+    gap: 0.25rem;
+  }
+}

@@ -1,0 +1,234 @@
+.registerPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  padding: 1rem 0.75rem;
+  background-color: var(--gray-100);
+  min-height: 100%;
+}
+
+.registerContainer {
+  padding: 15 0 0 0;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.registerCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  width: 100%;
+}
+
+.registerHeader {
+  margin-bottom: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.registerTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.125rem;
+}
+
+.registerSubtitle {
+  color: var(--gray-600);
+  font-size: 0.8rem;
+  max-width: 100%;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  width: 100%;
+}
+
+.formRow {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.registerFooter {
+  margin-top: 0.75rem;
+  text-align: center;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.loginLink {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+}
+
+/* Success Message Styles */
+.successMessage {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.successIcon {
+  color: #10b981;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.successTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+}
+
+.successText {
+  font-size: 1rem;
+  color: var(--gray-700);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.successActions {
+  margin-top: 2rem;
+}
+
+/* Success Container Styles */
+.successContainer {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  background-color: var(--success-color, #10b981);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  margin: 0 auto 1.5rem;
+  font-weight: bold;
+}
+
+.successTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+}
+
+.successMessage {
+  font-size: 1rem;
+  color: var(--gray-700);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.successInstructions {
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--blue-50, #eff6ff);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.successNotes {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: var(--gray-50);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.successNotes p {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.successNotes ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.loginButton {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background-color: var(--primary-color-dark, #2563eb);
+}
+
+.errorText {
+  color: var(--error-color, #ef4444);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #fee;
+  border-radius: 4px;
+  border-left: 4px solid var(--error-color, #ef4444);
+}
+
+/* Responsive styles */
+/* Tablet */
+@media (max-width: 768px) {
+  .registerContainer {
+    max-width: 450px;
+  }
+  
+  .registerCard {
+    padding: 1.125rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .registerContainer {
+    max-width: 100%;
+  }
+  
+  .registerCard {
+    padding: 1rem;
+    border-radius: 6px;
+  }
+  
+  .formRow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .registerTitle {
+    font-size: 1.25rem;
+  }
+  
+  .registerPage {
+    padding: 0.5rem;
+  }
+}

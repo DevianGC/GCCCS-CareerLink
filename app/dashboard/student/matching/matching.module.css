@@ -1,0 +1,108 @@
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.loadingBox,
+.errorBox,
+.emptyState {
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerLeft {
+  min-width: 0;
+}
+
+.jobTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.companyRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.company { font-weight: 500; }
+.dot { opacity: 0.6; }
+.location { opacity: 0.85; }
+
+.scoreBadge {
+  min-width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #4CAF50, #2e7d32);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.description {
+  color: #333;
+  line-height: 1.4;
+}
+
+.reqs { margin-top: 10px; }
+.reqsLabel { font-weight: 600; margin-bottom: 6px; }
+.reqsList { padding-left: 18px; margin: 0; }
+.reqItem { color: #444; margin: 2px 0; }
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.meta { display: flex; gap: 10px; align-items: center; color: #444; }
+.typeTag {
+  padding: 2px 8px;
+  background: #eef6ff;
+  border: 1px solid #d6e7ff;
+  color: #225599;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.salary { font-weight: 600; }
+
+.actions { display: flex; gap: 8px; }

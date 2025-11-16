@@ -1,0 +1,355 @@
+.eventsPage {
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.heroSection {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0;
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: -2rem;
+}
+
+.heroSubtitle {
+  font-size: 1rem;
+  line-height: 1.4;
+  opacity: 0.9;
+  margin-bottom: 0rem;
+}
+
+/* Events Section */
+.eventsSection {
+  padding: 0.5rem 0;
+  background-color: var(--gray-50);
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.errorMessage {
+  color: #dc3545;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--gray-600);
+}
+
+.emptyState h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--gray-800);
+}
+
+.emptyState p {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.eventsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .eventsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .eventsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+.eventCard {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.eventCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.eventImageContainer {
+  position: relative;
+  height: 180px;
+  background-color: var(--gray-200);
+}
+
+@media (min-width: 768px) {
+  .eventImageContainer {
+    height: 200px;
+  }
+}
+
+.eventImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  background-color: var(--gray-100);
+}
+
+.eventType {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.eventTypeCareerFair {
+  background-color: var(--blue-100);
+  color: var(--blue-700);
+}
+
+.eventTypeWorkshop {
+  background-color: var(--green-100);
+  color: var(--green-700);
+}
+
+.eventTypeNetworking {
+  background-color: var(--purple-100);
+  color: var(--purple-700);
+}
+
+.eventTypePanelDiscussion {
+  background-color: var(--yellow-100);
+  color: var(--yellow-700);
+}
+
+.eventContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.eventTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.eventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.eventDate,
+.eventTime,
+.eventLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.eventInfoIcon {
+  font-size: 1rem;
+  color: var(--gray-500);
+}
+
+.eventDescription {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.eventActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+@media (min-width: 640px) {
+  .eventActions {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+.detailsButton,
+.registerButton {
+  flex: 1;
+  text-align: center;
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: 1.5rem 0rem 0rem;
+  background-color: var(--primary-color);
+  color: rgb(0, 0, 0);
+}
+
+.ctaContent {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.ctaText {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600; 
+  margin-bottom: 1.5rem ;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .heroSection {
+    padding: 3rem 0;
+  }
+  
+  .heroTitle {
+    font-size: 2.75rem;
+  }
+  
+  .eventsSection {
+    padding: 4rem 0;
+  }
+  
+  .ctaSection {
+    padding: 4rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1.125rem;
+  }
+  
+  .ctaTitle {
+    font-size: 2rem;
+  }
+  
+  .ctaText {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 2.5rem 0;
+  }
+  
+  .heroTitle {
+    font-size: 2rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  
+  .eventsSection {
+    padding: 3rem 0;
+  }
+  
+  .eventTitle {
+    font-size: 1.125rem;
+  }
+  
+  .ctaSection {
+    padding: 3rem 0;
+  }
+  
+  .ctaButton {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+  }
+}

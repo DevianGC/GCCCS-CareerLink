@@ -1,0 +1,32 @@
+/* Dashboard layout styles */
+.dashboard-layout {
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  width: 100%;
+}
+
+.main-content {
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Hide the footer in dashboard pages */
+body:has(.dashboard-layout) footer {
+  display: none !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.dashboard-layout ~ footer,
+.dashboard-layout + footer {
+  display: none !important;
+}

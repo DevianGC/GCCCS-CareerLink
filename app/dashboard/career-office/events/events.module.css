@@ -1,0 +1,431 @@
+.eventsContainer {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pageTitle {
+  font-size: clamp(1.25rem, 2vw + 1rem, 1.75rem);
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.actionButton:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  background-color: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.secondaryButton:hover {
+  background-color: var(--gray-300);
+}
+
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.searchAndFilters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchInput {
+  min-width: 200px;
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+
+.filterSelect {
+  padding: 0.625rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.sortOptions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortLabel {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.eventsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.eventsTable th,
+.eventsTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.eventsTable th {
+  background-color: var(--gray-50);
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.875rem;
+}
+
+.eventsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.eventsTable tr:hover {
+  background-color: var(--gray-50);
+}
+
+.eventTitle {
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.eventLocation,
+.eventDate,
+.eventTime {
+  color: var(--gray-700);
+  font-size: 0.875rem;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.statusUpcoming {
+  background-color: var(--green-100);
+  color: var(--green-800);
+}
+
+.statusOngoing {
+  background-color: var(--blue-100);
+  color: var(--blue-800);
+}
+
+.statusCompleted {
+  background-color: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.statusCancelled {
+  background-color: var(--red-100);
+  color: var(--red-800);
+}
+
+.statusDraft {
+  background-color: var(--yellow-100);
+  color: var(--yellow-800);
+}
+
+.actionColumn {
+  width: 120px;
+}
+
+.rowActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-600);
+  padding: 0.4rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s, color 0.2s, transform 0.15s;
+  font-size: 1.1rem;
+}
+
+.actionIcon:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+  transform: scale(1.1);
+}
+
+.editIcon:hover {
+  color: var(--blue-600);
+}
+
+.deleteIcon:hover {
+  color: var(--red-600);
+}
+
+.viewIcon:hover {
+  color: var(--green-600);
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.paginationInfo {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.paginationControls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.paginationButton {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  color: var(--gray-700);
+  transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
+  font-size: 0.875rem;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--gray-100);
+  border-color: var(--gray-400);
+  transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationButton.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-500);
+  line-height: 1;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.formInput,
+.formTextarea,
+.formSelect {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  font-size: 1rem;
+}
+
+.formTextarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.formColumn {
+  flex: 1;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.checkboxLabel {
+  color: var(--gray-700);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .eventsTable th,
+  .eventsTable td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchAndFilters {
+    flex-direction: column;
+  }
+
+  .formRow {
+    flex-direction: column;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actionButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .eventsTable {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 1.25rem;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .statusBadge {
+    min-width: auto;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

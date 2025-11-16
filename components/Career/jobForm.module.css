@@ -1,0 +1,60 @@
+.jobForm {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.formRow {
+	display: flex;
+	flex-direction: column;
+}
+.formLabel {
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+.formInput,
+.formSelect,
+.formTextarea {
+	padding: 10px;
+	border: 1px solid #e6e9ef;
+	border-radius: 8px;
+	background-color: white;
+	color: black;
+}
+.formTextarea {
+	min-height: 120px;
+}
+.formCheckboxRow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.formCheckbox {
+	width: 16px;
+	height: 16px;
+}
+.jobFormActions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 12px;
+}
+.cancelButton {
+	background: #f3f4f6;
+	color: #111827;
+	border: 1px solid #e6e9ef;
+	padding: 12px 16px;
+	border-radius: 8px;
+}
+.cancelButton:hover {
+	background: #e5e7eb;
+}
+.saveButton {
+	background: #0b5cff;
+	color: #fff;
+	padding: 12px 16px;
+	border-radius: 8px;
+}
+.formError {
+	color: #dc2626;
+	margin-top: 8px;
+}

@@ -1,0 +1,597 @@
+:root {
+  --primary-color: #4a6cf7;
+  --primary-hover: #3a5bd9;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --body-bg: #ffffff;
+}
+
+.studentsContainer {
+  padding: 1.5rem;
+  background-color: var(--body-bg);
+  min-height: 100vh;
+}
+
+.studentsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.studentsTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.studentsActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.exportButton,
+.bulkEmailButton {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.exportButton:hover,
+.bulkEmailButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Students Content Layout */
+.studentsContent {
+  display: grid;
+  grid-template-columns: 250px 1fr 350px;
+  gap: 1.5rem;
+  height: calc(100vh - 150px);
+}
+
+/* Filters Panel */
+.filtersPanel {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.searchBox {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: white;
+  color:black
+}
+
+.clearSearch {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: black;
+  cursor: pointer;
+}
+
+.filterGroup {
+  margin-bottom: 1.25rem;
+}
+
+.filterTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: white;
+  color: black;
+}
+
+.clearFiltersButton {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: var(--light-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clearFiltersButton:hover {
+  background-color: var(--border-color);
+}
+
+/* Students List */
+.studentsList {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.studentsListHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.studentsCount {
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+}
+
+.studentsGrid {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.studentCard {
+  display: flex;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--light-color);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.studentCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color);
+}
+
+.selectedStudent {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+}
+
+.studentAvatar {
+  font-size: 2rem;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+}
+
+.studentInfo {
+  flex: 1;
+}
+
+.studentName {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--dark-color);
+}
+
+.studentMajor {
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.studentUniversity {
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.studentGradYear {
+  color: var(--secondary-color);
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.studentCompletion {
+  margin-bottom: 0.75rem;
+}
+
+.completionLabel {
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+  margin-bottom: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.completionBar {
+  height: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.completionFill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 0.25rem;
+}
+
+.studentStats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--dark-color);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+}
+
+.studentSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skillBadge {
+  background-color: rgba(74, 108, 247, 0.1);
+  color: var(--primary-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.moreSkills {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--secondary-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.noStudents {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.noStudentsIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Student Detail */
+.studentDetail {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: calc(100vh - 4rem);
+  overflow-y: auto;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  position: fixed;
+  top: 4rem;
+  right: 0;
+  width: 350px;
+  z-index: 10;
+}
+
+.studentDetailActive {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.studentDetailContent {
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.studentDetailHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.studentDetailAvatar {
+  font-size: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.studentDetailName {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.studentDetailMajor {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.studentDetailUniversity {
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.studentDetailGradYear {
+  color: var(--secondary-color);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.studentDetailBody {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.studentDetailSection {
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: var(--dark-color);
+}
+
+.studentDetailItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: var(--secondary-color);
+}
+
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.preferencesList {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.preferenceItem {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.applicationStats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.applicationStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--light-color);
+  border-radius: 0.375rem;
+  flex: 1;
+}
+
+.studentDetailActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.downloadResumeButton,
+.hideButton {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.downloadResumeButton {
+  background-color: rgb(245, 177, 51);
+  color: white;
+}
+
+.hideButton {
+  background-color: #6c757d;
+  color: white;
+}
+
+.downloadResumeButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.hideButton:hover {
+  background-color: #5a6268;
+}
+
+/* No Student Selected */
+.noStudentSelected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.noStudentSelectedIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .studentsContent {
+    grid-template-columns: 200px 1fr;
+  }
+  
+  .studentDetail {
+    width: 100%;
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .studentsContent {
+    grid-template-columns: 1fr;
+  }
+  
+  .filtersPanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  
+  .filtersPanelActive {
+    transform: translateX(0);
+  }
+  
+  .studentDetail {
+    width: 100%;
+  }
+  
+  .studentsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .studentsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .studentCard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .studentAvatar {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  .studentDetailItem {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .applicationStats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

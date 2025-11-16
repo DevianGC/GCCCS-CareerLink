@@ -1,0 +1,93 @@
+// Firestore rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             request.auth.token.role == role;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.role == 'career_office' || 
+              request.auth.token.role == 'careerOffice' ||
+              request.auth.token.role == 'admin');
+    }
+    
+    // Users collection - profiles
+    match /users/{userId} {
+      // Users can read and write their own profile
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      // Admins can read all profiles
+      allow read: if isAdmin();
+    }
+    
+    // Jobs collection - job postings
+    match /jobs/{jobId} {
+      // Anyone can read jobs
+      allow read: if true;
+      // Authenticated users can create, update, delete jobs
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+    
+    // Applications collection - job applications
+    match /applications/{applicationId} {
+      // Users can read only their own applications
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      // Users can create applications with their own userId
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      // Users can update only their own applications
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == request.auth.uid;
+      // Users can delete only their own applications
+      allow delete: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Admins can read all applications
+      allow read: if isAdmin();
+      // Admins can update application status
+      allow update: if isAdmin();
+    }
+    
+    // Events collection - career events
+    match /events/{eventId} {
+      // Anyone can read events
+      allow read: if true;
+      // Authenticated users can create events (for now - will restrict later)
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+    
+    // Event Registrations collection - users registered for events
+    match /eventRegistrations/{registrationId} {
+      // Users can read their own registrations
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      // Users can create registrations with their own userId
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      // Users can delete only their own registrations
+      allow delete: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Admins can read all registrations
+      allow read: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,4 @@
+.gc-toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(16,24,40,0.12);z-index:9999}
+.gc-toast-info{background:#111827}
+.gc-toast-success{background:#16a34a}
+.gc-toast-error{background:#dc2626}

@@ -1,0 +1,481 @@
+/* 🌐 Container */
+.eventsContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* 🧭 Header Section */
+.eventsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eventsTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+/* 🌗 View Toggle Buttons */
+.viewToggle {
+  display: flex;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.75rem;
+  background-color: var(--gray-50);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.viewToggleButton {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  text-align: center;
+}
+
+.viewToggleButton:hover {
+  background-color: var(--gray-100);
+  color: var(--primary-color);
+}
+
+.activeView {
+  background-color: var(--primary-color);
+  color: #000000;
+  box-shadow: inset 0 -2px 0 0 var(--primary-dark);
+}
+
+/* Add icons for better UX if applicable */
+.viewToggleButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 🔍 Controls */
+.eventsControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  flex: 1;
+  position: relative;
+  min-width: 250px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--gray-900);
+  transition: all 0.2s ease-in-out;
+  background-color: white;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+}
+
+.filterBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.filterSelect {
+  padding: 0.625rem 2rem 0.625rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  background-color: white;
+  font-size: 0.875rem;
+  color: var(--gray-900);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.filterSelect:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+/* 🧱 GRID VIEW */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.eventCard {
+  background-color: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.eventCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 🖼️ Event Image */
+.eventImageContainer {
+  height: 180px;
+  position: relative;
+  background-color: var(--gray-100);
+  overflow: hidden;
+}
+
+.eventImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+/* 🏷️ Event Type */
+.eventType {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.eventTypeCareerFair {
+  background-color: var(--blue-100);
+  color: var(--blue-700);
+}
+
+.eventTypeWorkshop {
+  background-color: var(--green-100);
+  color: var(--green-700);
+}
+
+.eventTypeNetworking {
+  background-color: var(--purple-100);
+  color: var(--purple-700);
+}
+
+.eventTypePanelDiscussion {
+  background-color: var(--yellow-100);
+  color: var(--yellow-700);
+}
+
+/* 📄 Event Content */
+.eventContent {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.eventTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 0.75rem;
+}
+
+.eventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.eventDate,
+.eventTime,
+.eventLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.eventDescription {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+/* 🧭 Buttons */
+.eventActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.registerButton,
+.detailsButton {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+}
+
+.registerButton {
+  background-color: var(--primary-color);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+}
+
+.registerButton:hover {
+  background-color: orangered;
+  color: white;
+}
+
+.detailsButton {
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+}
+
+.detailsButton:hover {
+  background-color: var(--gray-100);
+}
+
+/* 🗓️ CALENDAR VIEW */
+.calendarView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.calendarDay {
+  background-color: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.calendarDayHeader {
+  background-color: var(--gray-50);
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.calendarDayTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.calendarDayEvents {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendarEvent {
+  display: flex;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-200);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.calendarEvent:last-child {
+  border-bottom: none;
+}
+
+.calendarEvent:hover {
+  background-color: var(--gray-50);
+}
+
+.calendarEventTime {
+  width: 120px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.calendarEventContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calendarEventTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.calendarEventLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+/* 🧩 No Events */
+.noEvents {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.noEvents h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.noEvents p {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+}
+
+/* 🔙 Back Button */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.backButton:hover {
+  background-color: var(--gray-100);
+  color: var(--primary-color);
+}
+
+/* 📱 Responsive Design */
+@media (max-width: 1024px) {
+  .eventsControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .eventsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .viewToggle {
+    width: 100%;
+  }
+
+  .viewToggleButton {
+    flex: 1;
+    font-size: 0.875rem;
+    padding: 0.6rem;
+  }
+
+  .eventsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendarEvent {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .calendarEventTime {
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .eventsContainer {
+    padding: 0.75rem;
+  }
+
+  .filterBox {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+
+  .eventActions {
+    flex-direction: column;
+  }
+
+  .eventContent {
+    padding: 1rem;
+  }
+
+  .eventTitle {
+    font-size: 1rem;
+  }
+}

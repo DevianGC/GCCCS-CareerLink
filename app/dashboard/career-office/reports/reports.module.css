@@ -1,0 +1,180 @@
+.reportsContainer {
+  padding: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.reportControls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.reportSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: #fff;
+}
+
+.exportButton {
+  background-color: var(--blue-600);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.exportButton:hover {
+  background-color: var(--blue-700);
+}
+
+.tabsContainer {
+  display: flex;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.tabButton {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tabButton:hover {
+  color: var(--gray-900);
+}
+
+.activeTab {
+  color: var(--blue-600);
+  border-bottom: 2px solid var(--blue-600);
+}
+
+.reportsTable {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.table th {
+  background-color: var(--gray-50);
+  font-weight: 500;
+  color: var(--gray-700);
+  font-size: 0.875rem;
+}
+
+.table tr {
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.table tr:last-child {
+  border-bottom: none;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusComplete {
+  background-color: var(--green-100);
+  color: var(--green-800);
+}
+
+.statusPending {
+  background-color: var(--yellow-100);
+  color: var(--yellow-800);
+}
+
+.viewButton,
+.downloadButton {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--blue-600);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.downloadButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.viewButton:hover {
+  text-decoration: underline;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.downloadButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.noResume {
+  font-size: 0.875rem;
+  color: var(--gray-400);
+  font-style: italic;
+}
+
+.noReports {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* Minimal modal reused */
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modalCard { background: #fff; width: min(560px, 92vw); border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden; }
+.modalHeader { padding: 0.9rem 1rem; border-bottom: 1px solid var(--gray-200); font-weight: 600; }
+.modalBody { padding: 1rem; color: var(--gray-800); font-size: 0.95rem; display: grid; gap: 0.5rem; }
+.modalActions { padding: 0.75rem 1rem; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--gray-200); }
+.btnBase { padding: 0.5rem 0.8rem; border-radius: 0.375rem; border: 1px solid var(--gray-300); background: #fff; color: var(--gray-800); cursor: pointer; }
+.btnPrimary { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+.btnBase:hover { background: var(--gray-50); border-color: var(--gray-400); }

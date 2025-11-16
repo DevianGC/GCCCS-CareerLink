@@ -1,0 +1,157 @@
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.flexRow {
+  display: flex;
+  gap: 32px;
+  align-items: stretch;
+}
+.mentorListCol {
+  flex: 0 0 320px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+.mentorDetailCol {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mentorListCard {
+  max-width: 320px;
+}
+.mentorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.mentorItem {
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mentorInfo {
+  margin-bottom: 4px;
+}
+.mentorName {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.mentorTitle {
+  color: #444;
+  font-size: 0.95rem;
+}
+.mentorExpertise {
+  color: #225599;
+  font-size: 0.93rem;
+}
+.mentorBio {
+  color: #555;
+  font-size: 0.93rem;
+  margin-bottom: 2px;
+}
+.selectButton {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.mentorDetailCard {
+  max-width: 600px;
+}
+.section {
+  margin-bottom: 18px;
+}
+.sectionTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.slotList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.slotItem {
+  margin-bottom: 4px;
+}
+.scheduleButton {
+  font-size: 0.95rem;
+}
+.requestButton {
+  margin-top: 6px;
+}
+.chatBox {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fafbfc;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chatHistory {
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chatEmpty {
+  color: #aaa;
+  font-size: 0.95rem;
+}
+.chatStudent {
+  align-self: flex-end;
+  background: #e3f2fd;
+  color: #225599;
+  padding: 4px 10px;
+  border-radius: 12px 12px 2px 12px;
+  max-width: 70%;
+}
+.chatMentor {
+  align-self: flex-start;
+  background: #f1f8e9;
+  color: #33691e;
+  padding: 4px 10px;
+  border-radius: 12px 12px 12px 2px;
+  max-width: 70%;
+}
+.chatInputRow {
+  display: flex;
+  gap: 8px;
+}
+.chatInput {
+  flex: 1 1 0%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: white;
+  color: black;
+}
+.sendButton {
+  min-width: 60px;
+}

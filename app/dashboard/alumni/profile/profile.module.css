@@ -1,0 +1,539 @@
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 0%;
+
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Buttons */
+.editButton,
+.saveButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.editButton {
+  background: #3498db;
+  color: white;
+}
+
+.editButton:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+.saveButton {
+  background: #27ae60;
+  color: white;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #229954;
+  transform: translateY(-2px);
+}
+
+.saveButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: #95a5a6;
+  color: white;
+}
+
+.cancelButton:hover {
+  background: #7f8c8d;
+}
+
+/* Section Navigation */
+.sectionNav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.navButton {
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.navButton:hover {
+  color: #3498db;
+  background: #f8f9fa;
+}
+
+.activeNav {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+/* Sections */
+.section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Form Elements */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding-top: 1rem;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  background-color: white;
+  color: black;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.formGroup input:disabled,
+.formGroup select:disabled,
+.formGroup textarea:disabled {
+  background: #f8f9fa;
+  color: #555;
+  cursor: not-allowed;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.fieldDescription {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  margin: 0.25rem 0 0.75rem 0;
+}
+
+/* Skills Section */
+.skillsSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.skillsSection h3 {
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+}
+
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.skillTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #3498db;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.removeSkillButton {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.removeSkillButton:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.addSkillForm {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.addSkillForm input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.addButton {
+  padding: 0.75rem 1.5rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Education Section */
+.educationSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.educationSection h3 {
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+}
+
+/* Achievements Section */
+.achievementsSection,
+.certificationsSection,
+.awardsSection {
+  margin: 2rem 0;
+}
+
+.achievementsSection h3,
+.certificationsSection h3,
+.awardsSection h3 {
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+}
+
+.achievementCard,
+.certCard,
+.awardCard {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.achievementHeader,
+.certHeader,
+.awardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.achievementCard h4,
+.certCard h4,
+.awardCard h4 {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.achievementDate,
+.certDate,
+.awardDate {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  margin: 0.25rem 0;
+}
+
+.achievementDescription,
+.awardDescription {
+  color: #555;
+  line-height: 1.6;
+  margin: 0.75rem 0 0 0;
+}
+
+.certIssuer,
+.awardIssuer {
+  font-weight: 500;
+  color: #555;
+  margin: 0.25rem 0;
+}
+
+.certLink {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.certLink:hover {
+  text-decoration: underline;
+}
+
+.removeButton {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.removeButton:hover {
+  background: #c0392b;
+}
+
+/* Add Form */
+.addForm {
+  background: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.addForm h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+}
+
+/* Mentorship Areas */
+.mentorshipAreasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.areaCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.areaCheckbox:hover {
+  background: #e8f4f8;
+  border-color: #3498db;
+}
+
+.areaCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.areaCheckbox input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.areaCheckbox input[type="checkbox"]:checked + span {
+  font-weight: 600;
+  color: #3498db;
+}
+
+.areaCheckbox span {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .editButton,
+  .saveButton,
+  .cancelButton {
+    flex: 1;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 1.5rem;
+  }
+
+  .sectionNav {
+    gap: 0.25rem;
+  }
+
+  .navButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievementHeader,
+  .certHeader,
+  .awardHeader {
+    flex-direction: column;
+  }
+
+  .removeButton {
+    align-self: flex-start;
+  }
+
+  .mentorshipAreasGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .addSkillForm {
+    flex-direction: column;
+  }
+}
