@@ -1,7 +1,8 @@
 'use client';
 
-
 import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, limit, orderBy } from 'firebase/firestore';
+import { firebaseDb } from '../../../lib/firebaseClient';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import styles from './alumni-dashboard.module.css';
 
@@ -10,79 +11,236 @@ export default function AlumniDashboard() {
   const [opportunities, setOpportunities] = useState([]);
   const [myGroups, setMyGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // TODO: Replace with actual API calls
-    const fetchDashboardData = async () => {
+    // Fetch user profile
+    const fetchUserProfile = async () => {
       try {
-        // Fetch updates, opportunities, and mentoring invitations
-        // const updatesData = await fetch('/api/alumni/updates').then(res => res.json());
-        // const opportunitiesData = await fetch('/api/alumni/opportunities').then(res => res.json());
-        // Mock data for now
-        setUpdates([
-          { id: 1, title: 'Career Fair 2025', date: '2025-11-15', description: 'Join us for the annual career fair' },
-          { id: 2, title: 'Networking Event', date: '2025-11-20', description: 'Connect with fellow alumni' },
-        ]);
-        setOpportunities([
-          { id: 1, title: 'Senior Software Engineer', company: 'Tech Corp', type: 'Full-time', postedDate: '2025-11-01' },
-          { id: 2, title: 'Product Manager', company: 'Innovation Ltd', type: 'Full-time', postedDate: '2025-11-03' },
-        ]);
-        // Mock mentorship groups with applicants
-        setMyGroups([
-          {
-            id: 1,
-            title: 'Frontend Career Group',
-            applicants: [
-              { id: 101, name: 'Alice Johnson', major: 'Computer Science', year: '3rd Year', appliedDate: '2025-11-05', status: 'pending' },
-              { id: 102, name: 'Bob Lee', major: 'IT', year: '2nd Year', appliedDate: '2025-11-04', status: 'accepted' }
-            ]
-          },
-          {
-            id: 2,
-            title: 'Business Mentorship',
-            applicants: [
-              { id: 103, name: 'Cathy Smith', major: 'Business', year: '4th Year', appliedDate: '2025-11-03', status: 'pending' }
-            ]
+        const res = await fetch('/api/profile', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const user = data?.profile || data?.user;
+          if (user) {
+            const firstName = user.firstName || '';
+            const lastName = user.lastName || '';
+            const fullName = user.fullName || `${firstName} ${lastName}`.trim();
+            setUserName(fullName || user.email || 'Alumni');
           }
-        ]);
-        setLoading(false);
+        }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        setLoading(false);
+        console.error('Error fetching user profile:', error);
       }
     };
 
-    fetchDashboardData();
+    fetchUserProfile();
   }, []);
 
+  // Fetch events from Firestore
+  useEffect(() => {
+    if (!firebaseDb) {
+      setLoading(false);
+      return;
+    }
+
+    const eventsQuery = query(
+      collection(firebaseDb, 'events'),
+      where('status', 'in', ['Upcoming', 'Ongoing']),
+      limit(5)
+    );
+
+    const unsubscribe = onSnapshot(eventsQuery, (snapshot) => {
+      const eventsData = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          title: doc.data().title || doc.data().name,
+          description: doc.data().description || '',
+          date: doc.data().date || doc.data().createdAt?.split('T')[0] || new Date().toISOString().split('T')[0]
+        }))
+        .sort((a, b) => {
+          const dateA = a.date ? new Date(a.date) : new Date(0);
+          const dateB = b.date ? new Date(b.date) : new Date(0);
+          return dateB - dateA;
+        })
+        .slice(0, 2);
+      setUpdates(eventsData);
+    }, (error) => {
+      console.error('Error fetching events:', error);
+      // Fallback: fetch all events and filter client-side
+      const fallbackQuery = query(
+        collection(firebaseDb, 'events'),
+        limit(5)
+      );
+      const fallbackUnsubscribe = onSnapshot(fallbackQuery, (snapshot) => {
+        const eventsData = snapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            title: doc.data().title || doc.data().name,
+            description: doc.data().description || '',
+            date: doc.data().date || doc.data().createdAt?.split('T')[0] || new Date().toISOString().split('T')[0]
+          }))
+          .filter(event => event.status === 'Upcoming' || event.status === 'Ongoing')
+          .slice(0, 2);
+        setUpdates(eventsData);
+      });
+      return () => fallbackUnsubscribe();
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch jobs/opportunities from Firestore
+  useEffect(() => {
+    if (!firebaseDb) {
+      setLoading(false);
+      return;
+    }
+
+    const jobsQuery = query(
+      collection(firebaseDb, 'jobs'),
+      where('status', '==', 'Active'),
+      limit(10)
+    );
+
+    const unsubscribe = onSnapshot(jobsQuery, (snapshot) => {
+      const jobsData = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          title: doc.data().title,
+          company: doc.data().company,
+          type: doc.data().type || 'Full-time',
+          postedDate: doc.data().posted || doc.data().createdAt?.split('T')[0] || ''
+        }))
+        .sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+          return dateB - dateA;
+        })
+        .slice(0, 2);
+      setOpportunities(jobsData);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching jobs:', error);
+      // Fallback: fetch all jobs and filter client-side
+      const fallbackQuery = query(
+        collection(firebaseDb, 'jobs'),
+        limit(10)
+      );
+      const fallbackUnsubscribe = onSnapshot(fallbackQuery, (snapshot) => {
+        const jobsData = snapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            title: doc.data().title,
+            company: doc.data().company,
+            type: doc.data().type || 'Full-time',
+            postedDate: doc.data().posted || doc.data().createdAt?.split('T')[0] || ''
+          }))
+          .filter(job => job.status === 'Active')
+          .slice(0, 2);
+        setOpportunities(jobsData);
+      });
+      setLoading(false);
+      return () => fallbackUnsubscribe();
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch mentorship groups and applications
+  useEffect(() => {
+    const fetchMentorshipData = async () => {
+      try {
+        // Fetch alumni's mentorship groups
+        const groupsRes = await fetch('/api/mentorship-groups?myGroups=true', { cache: 'no-store' });
+        if (groupsRes.ok) {
+          const groupsData = await groupsRes.json();
+          const groups = groupsData.groups || [];
+          
+          // Fetch applications for each group
+          const groupsWithApplicants = await Promise.all(
+            groups.map(async (group) => {
+              const appsRes = await fetch(`/api/mentorship-groups/${group.id}/applications`, { cache: 'no-store' });
+              if (appsRes.ok) {
+                const appsData = await appsRes.json();
+                return {
+                  ...group,
+                  title: group.title,
+                  applicants: appsData.applications || []
+                };
+              }
+              return { ...group, applicants: [] };
+            })
+          );
+          
+          setMyGroups(groupsWithApplicants);
+        }
+      } catch (error) {
+        console.error('Error fetching mentorship data:', error);
+      }
+    };
+
+    fetchMentorshipData();
+  }, []);
 
   // Accept/Decline applicant for a group
-  const handleAcceptApplicant = (groupId, applicantId) => {
-    setMyGroups(prev => prev.map(group => {
-      if (group.id === groupId) {
-        return {
-          ...group,
-          applicants: group.applicants.map(a =>
-            a.id === applicantId ? { ...a, status: 'accepted' } : a
-          )
-        };
+  const handleAcceptApplicant = async (groupId, applicantId) => {
+    try {
+      const res = await fetch(`/api/mentorship-groups/${groupId}/applications/${applicantId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'accepted' })
+      });
+
+      if (res.ok) {
+        // Update local state
+        setMyGroups(prev => prev.map(group => {
+          if (group.id === groupId) {
+            return {
+              ...group,
+              applicants: group.applicants.map(a =>
+                a.id === applicantId ? { ...a, status: 'accepted' } : a
+              )
+            };
+          }
+          return group;
+        }));
       }
-      return group;
-    }));
+    } catch (error) {
+      console.error('Error accepting applicant:', error);
+      alert('Failed to accept applicant');
+    }
   };
 
-  const handleDeclineApplicant = (groupId, applicantId) => {
-    setMyGroups(prev => prev.map(group => {
-      if (group.id === groupId) {
-        return {
-          ...group,
-          applicants: group.applicants.map(a =>
-            a.id === applicantId ? { ...a, status: 'declined' } : a
-          )
-        };
+  const handleDeclineApplicant = async (groupId, applicantId) => {
+    try {
+      const res = await fetch(`/api/mentorship-groups/${groupId}/applications/${applicantId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'declined' })
+      });
+
+      if (res.ok) {
+        // Update local state
+        setMyGroups(prev => prev.map(group => {
+          if (group.id === groupId) {
+            return {
+              ...group,
+              applicants: group.applicants.map(a =>
+                a.id === applicantId ? { ...a, status: 'declined' } : a
+              )
+            };
+          }
+          return group;
+        }));
       }
-      return group;
-    }));
+    } catch (error) {
+      console.error('Error declining applicant:', error);
+      alert('Failed to decline applicant');
+    }
   };
 
   if (loading) {
@@ -98,7 +256,7 @@ export default function AlumniDashboard() {
   return (
     <DashboardLayout userType="alumni">
       <div className={styles.container}>
-        <h1 className={styles.title}>Alumni Dashboard</h1>
+        <h1 className={styles.title}>Welcome{userName ? `, ${userName}` : ''}!</h1>
         
         {/* Updates Section */}
         <section className={styles.section}>

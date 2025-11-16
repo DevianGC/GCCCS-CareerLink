@@ -1,75 +1,35 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import Card, { CardHeader, CardBody, CardFooter } from '../../../../components/UI/Card/Card';
 import Button from '../../../../components/UI/Button/Button';
 import styles from './pathway.module.css';
 
-// Example role-to-pathway data (in real app, fetch from API or config)
-const ROLE_PATHWAYS = [
-  {
-    role: 'Frontend Developer',
-    skills: [
-      'HTML/CSS',
-      'JavaScript',
-      'React.js',
-      'Responsive Design',
-      'Version Control (Git)'
-    ],
-    courses: [
-      'Coursera: HTML, CSS, and Javascript for Web Developers',
-      'freeCodeCamp: Responsive Web Design',
-      'Udemy: React - The Complete Guide'
-    ],
-    certifications: [
-      'Meta Front-End Developer (Coursera)',
-      'Microsoft Certified: Front End Web Developer Associate'
-    ]
-  },
-  {
-    role: 'Data Analyst',
-    skills: [
-      'SQL',
-      'Data Visualization',
-      'Python',
-      'Statistics',
-      'Excel'
-    ],
-    courses: [
-      'Google Data Analytics Professional Certificate',
-      'Coursera: Data Visualization with Python',
-      'Udemy: SQL Bootcamp'
-    ],
-    certifications: [
-      'Google Data Analytics Professional Certificate',
-      'Microsoft Certified: Data Analyst Associate'
-    ]
-  },
-  {
-    role: 'UX Designer',
-    skills: [
-      'User Research',
-      'Wireframing',
-      'Figma/Sketch',
-      'Prototyping',
-      'Usability Testing'
-    ],
-    courses: [
-      'Coursera: Google UX Design',
-      'Interaction Design Foundation: Become a UX Designer',
-      'Udemy: User Experience Design Essentials'
-    ],
-    certifications: [
-      'Google UX Design Professional Certificate',
-      'Certified Usability Analyst (CUA)'
-    ]
-  },
-  // Add more roles as needed
-];
-
 export default function CareerPathwayPage() {
+  const [pathways, setPathways] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedRole, setSelectedRole] = useState('');
-  const pathway = ROLE_PATHWAYS.find((r) => r.role === selectedRole);
+  
+  useEffect(() => {
+    fetchPathways();
+  }, []);
+
+  const fetchPathways = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/career-pathways', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setPathways(data.pathways || []);
+      }
+    } catch (error) {
+      console.error('Error fetching career pathways:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pathway = pathways.find((r) => r.role === selectedRole);
 
   return (
     <DashboardLayout userType="student">
@@ -78,29 +38,34 @@ export default function CareerPathwayPage() {
         <p className={styles.subtitle}>Select your target role to see recommended skills, courses, and certifications.</p>
       </div>
 
-      <div className={styles.flexRow}>
-        <div className={styles.selectorCol}>
-          <Card className={styles.selectorCard}>
-            <CardHeader>
-              <label htmlFor="role-select" className={styles.label}>Target Role</label>
-            </CardHeader>
-            <CardBody>
-              <select
-                id="role-select"
-                className={styles.select}
-                value={selectedRole}
-                onChange={e => setSelectedRole(e.target.value)}
-              >
-                <option value="">-- Select a role --</option>
-                {ROLE_PATHWAYS.map((r) => (
-                  <option key={r.role} value={r.role}>{r.role}</option>
-                ))}
-              </select>
-            </CardBody>
-          </Card>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading career pathways...</p>
         </div>
-        <div className={styles.recommendCol}>
-          {pathway && (
+      ) : (
+        <div className={styles.flexRow}>
+          <div className={styles.selectorCol}>
+            <Card className={styles.selectorCard}>
+              <CardHeader>
+                <label htmlFor="role-select" className={styles.label}>Target Role</label>
+              </CardHeader>
+              <CardBody>
+                <select
+                  id="role-select"
+                  className={styles.select}
+                  value={selectedRole}
+                  onChange={e => setSelectedRole(e.target.value)}
+                >
+                  <option value="">-- Select a role --</option>
+                  {pathways.map((r) => (
+                    <option key={r.role} value={r.role}>{r.role}</option>
+                  ))}
+                </select>
+              </CardBody>
+            </Card>
+          </div>
+          <div className={styles.recommendCol}>
+            {pathway && (
             <div className={styles.recommendations}>
               <Card className={styles.pathwayCard}>
                 <CardHeader>
@@ -132,8 +97,9 @@ export default function CareerPathwayPage() {
               </Card>
             </div>
           )}
+          </div>
         </div>
-      </div>
+      )}
     </DashboardLayout>
   );
 }

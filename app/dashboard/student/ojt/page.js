@@ -43,130 +43,90 @@ export default function StudentOJT() {
   const loadData = async () => {
     if (typeof window === 'undefined') return;
     
-    // Load student profile
     try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const profile = await response.json();
+      // Load student profile
+      const profileRes = await fetch('/api/profile', { cache: 'no-store' });
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        const profile = profileData?.profile || profileData?.user;
         
-        // Load saved OJT data
-        const saved = localStorage.getItem('myOJTStatus');
-        if (saved) {
-          const data = JSON.parse(saved);
-          setStudentData({
-            ...data,
-            studentId: profile.studentId || data.studentId,
-            name: profile.name || data.name,
-            email: profile.email || data.email,
-            year: profile.year || data.year,
-            major: profile.major || data.major,
-            gpa: profile.gpa || data.gpa
-          });
-          setOjtStatus(data.status);
-        } else {
-          setStudentData(prev => ({
-            ...prev,
-            studentId: profile.studentId || '',
-            name: profile.name || '',
-            email: profile.email || '',
-            year: profile.year || '',
-            major: profile.major || '',
-            gpa: profile.gpa || 0
-          }));
+        // Load OJT data from database
+        const ojtRes = await fetch('/api/ojt', { cache: 'no-store' });
+        if (ojtRes.ok) {
+          const ojtData = await ojtRes.json();
+          
+          if (ojtData.ojtData) {
+            setStudentData({
+              studentId: profile?.uid || ojtData.ojtData.studentId,
+              name: profile?.fullName || profile?.name || '',
+              email: profile?.email || '',
+              year: profile?.yearLevel || profile?.year || '',
+              major: profile?.program || profile?.major || '',
+              gpa: profile?.gpa || 0,
+              ...ojtData.ojtData
+            });
+            setOjtStatus(ojtData.ojtData.status || 'Not Started');
+          } else {
+            // No OJT record yet, use profile data
+            setStudentData(prev => ({
+              ...prev,
+              studentId: profile?.uid || '',
+              name: profile?.fullName || profile?.name || '',
+              email: profile?.email || '',
+              year: profile?.yearLevel || profile?.year || '',
+              major: profile?.program || profile?.major || '',
+              gpa: profile?.gpa || 0
+            }));
+          }
         }
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('Error loading OJT data:', error);
     }
   };
 
-  const syncWithFacultyMentor = (data) => {
-    // Sync to faculty mentor's view
-    if (data.status === 'Active') {
-      // Add to "With OJT" list
-      const withOJT = JSON.parse(localStorage.getItem('studentsWithOJT') || '[]');
-      const index = withOJT.findIndex(s => s.studentId === data.studentId);
+  const saveOJTData = async (data) => {
+    try {
+      const res = await fetch('/api/ojt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
       
-      const studentRecord = {
-        id: data.studentId,
-        studentId: data.studentId,
-        name: data.name,
-        email: data.email,
-        year: data.year,
-        major: data.major,
-        gpa: data.gpa,
-        company: data.company,
-        position: data.position,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        supervisor: data.supervisor,
-        status: 'Active',
-        lastContact: data.lastContact
-      };
-      
-      if (index >= 0) {
-        withOJT[index] = studentRecord;
-      } else {
-        withOJT.push(studentRecord);
+      if (!res.ok) {
+        throw new Error('Failed to save OJT data');
       }
-      localStorage.setItem('studentsWithOJT', JSON.stringify(withOJT));
       
-      // Remove from "Without OJT" list
-      const withoutOJT = JSON.parse(localStorage.getItem('studentsWithoutOJT') || '[]');
-      const filtered = withoutOJT.filter(s => s.studentId !== data.studentId);
-      localStorage.setItem('studentsWithoutOJT', JSON.stringify(filtered));
-    } else {
-      // Add to "Without OJT" list
-      const withoutOJT = JSON.parse(localStorage.getItem('studentsWithoutOJT') || '[]');
-      const index = withoutOJT.findIndex(s => s.studentId === data.studentId);
-      
-      const studentRecord = {
-        id: data.studentId,
-        studentId: data.studentId,
-        name: data.name,
-        email: data.email,
-        year: data.year,
-        major: data.major,
-        gpa: data.gpa,
-        status: data.status,
-        notes: data.notes || '',
-        lastContact: data.lastContact
-      };
-      
-      if (index >= 0) {
-        withoutOJT[index] = studentRecord;
-      } else {
-        withoutOJT.push(studentRecord);
-      }
-      localStorage.setItem('studentsWithoutOJT', JSON.stringify(withoutOJT));
-      
-      // Remove from "With OJT" list
-      const withOJT = JSON.parse(localStorage.getItem('studentsWithOJT') || '[]');
-      const filtered = withOJT.filter(s => s.studentId !== data.studentId);
-      localStorage.setItem('studentsWithOJT', JSON.stringify(filtered));
+      return await res.json();
+    } catch (error) {
+      console.error('Error saving OJT data:', error);
+      throw error;
     }
   };
 
-  const handleStatusChange = (newStatus) => {
+  const handleStatusChange = async (newStatus) => {
     const updated = {
       ...studentData,
       status: newStatus,
       lastContact: new Date().toISOString().split('T')[0]
     };
     
-    setStudentData(updated);
-    setOjtStatus(newStatus);
-    localStorage.setItem('myOJTStatus', JSON.stringify(updated));
-    syncWithFacultyMentor(updated);
-    setShowStatusModal(false);
-    
-    // If changing to Active, show OJT details modal
-    if (newStatus === 'Active') {
-      setShowOJTModal(true);
+    try {
+      await saveOJTData(updated);
+      setStudentData(updated);
+      setOjtStatus(newStatus);
+      setShowStatusModal(false);
+      
+      // If changing to Active, show OJT details modal
+      if (newStatus === 'Active') {
+        setShowOJTModal(true);
+      }
+    } catch (error) {
+      alert('Failed to update status. Please try again.');
     }
   };
 
-  const handleOJTSubmit = (e) => {
+  const handleOJTSubmit = async (e) => {
     e.preventDefault();
     const updated = {
       ...studentData,
@@ -175,14 +135,17 @@ export default function StudentOJT() {
       lastContact: new Date().toISOString().split('T')[0]
     };
     
-    setStudentData(updated);
-    setOjtStatus('Active');
-    localStorage.setItem('myOJTStatus', JSON.stringify(updated));
-    syncWithFacultyMentor(updated);
-    setShowOJTModal(false);
+    try {
+      await saveOJTData(updated);
+      setStudentData(updated);
+      setOjtStatus('Active');
+      setShowOJTModal(false);
+    } catch (error) {
+      alert('Failed to save OJT details. Please try again.');
+    }
   };
 
-  const handleNotesSubmit = (e) => {
+  const handleNotesSubmit = async (e) => {
     e.preventDefault();
     const notes = e.target.notes.value;
     const updated = {
@@ -191,10 +154,13 @@ export default function StudentOJT() {
       lastContact: new Date().toISOString().split('T')[0]
     };
     
-    setStudentData(updated);
-    localStorage.setItem('myOJTStatus', JSON.stringify(updated));
-    syncWithFacultyMentor(updated);
-    setShowNotesModal(false);
+    try {
+      await saveOJTData(updated);
+      setStudentData(updated);
+      setShowNotesModal(false);
+    } catch (error) {
+      alert('Failed to save notes. Please try again.');
+    }
   };
 
   return (

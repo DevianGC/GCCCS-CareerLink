@@ -6,29 +6,80 @@ import styles from './profile.module.css';
 
 export default function MentorProfile() {
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@university.edu',
-    department: 'Computer Science',
-    position: 'Associate Professor',
-    phone: '+1 (555) 123-4567',
-    officeLocation: 'Building A, Room 301',
-    bio: 'Passionate educator with 10+ years of experience in software engineering and computer science education.',
-    areasOfExpertise: ['Software Engineering', 'Database Systems', 'Web Development', 'Career Development'],
+    firstName: '',
+    lastName: '',
+    email: '',
+    department: '',
+    facultyId: '',
+    phone: '',
+    officeLocation: '',
+    specialization: '',
+    yearsOfExperience: '',
+    bio: '',
+    areasOfExpertise: [],
     availability: {
-      monday: { available: true, timeSlots: ['9:00 AM - 11:00 AM', '2:00 PM - 4:00 PM'] },
-      tuesday: { available: true, timeSlots: ['10:00 AM - 12:00 PM'] },
-      wednesday: { available: true, timeSlots: ['9:00 AM - 11:00 AM', '2:00 PM - 4:00 PM'] },
+      monday: { available: false, timeSlots: [] },
+      tuesday: { available: false, timeSlots: [] },
+      wednesday: { available: false, timeSlots: [] },
       thursday: { available: false, timeSlots: [] },
-      friday: { available: true, timeSlots: ['9:00 AM - 12:00 PM'] }
+      friday: { available: false, timeSlots: [] }
     },
-    preferredMeetingTypes: ['In-person', 'Online'],
-    maxMenteesPerSemester: 10
+    preferredMeetingTypes: [],
+    maxMenteesPerSemester: 0
   });
 
   const [editData, setEditData] = useState(profileData);
   const [newExpertise, setNewExpertise] = useState('');
+
+  // Fetch profile data from API
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        const profile = data.profile || data.user;
+        
+        if (profile) {
+          const loadedProfile = {
+            firstName: profile.firstName || '',
+            lastName: profile.lastName || '',
+            email: profile.email || '',
+            department: profile.department || '',
+            facultyId: profile.facultyId || '',
+            phone: profile.phone || '',
+            officeLocation: profile.officeLocation || '',
+            specialization: profile.specialization || '',
+            yearsOfExperience: profile.yearsOfExperience || '',
+            bio: profile.bio || '',
+            areasOfExpertise: profile.areasOfExpertise || [],
+            availability: profile.availability || {
+              monday: { available: false, timeSlots: [] },
+              tuesday: { available: false, timeSlots: [] },
+              wednesday: { available: false, timeSlots: [] },
+              thursday: { available: false, timeSlots: [] },
+              friday: { available: false, timeSlots: [] }
+            },
+            preferredMeetingTypes: profile.preferredMeetingTypes || [],
+            maxMenteesPerSemester: profile.maxMenteesPerSemester || 0
+          };
+          
+          setProfileData(loadedProfile);
+          setEditData(loadedProfile);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -111,9 +162,25 @@ export default function MentorProfile() {
     });
   };
 
-  const handleSave = () => {
-    setProfileData(editData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      });
+
+      if (response.ok) {
+        setProfileData(editData);
+        setIsEditing(false);
+        alert('Profile updated successfully!');
+      } else {
+        alert('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('An error occurred while updating profile');
+    }
   };
 
   const handleCancel = () => {
@@ -123,6 +190,9 @@ export default function MentorProfile() {
 
   return (
     <DashboardLayout userType="faculty-mentor">
+      {loading ? (
+        <div className={styles.loading}>Loading profile...</div>
+      ) : (
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
@@ -220,16 +290,44 @@ export default function MentorProfile() {
               </div>
 
               <div className={styles.field}>
-                <label>Position</label>
+                <label>Faculty ID</label>
                 {isEditing ? (
                   <input
                     type="text"
-                    name="position"
-                    value={editData.position}
+                    name="facultyId"
+                    value={editData.facultyId}
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <p>{profileData.position}</p>
+                  <p>{profileData.facultyId}</p>
+                )}
+              </div>
+
+              <div className={styles.field}>
+                <label>Specialization</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="specialization"
+                    value={editData.specialization}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <p>{profileData.specialization}</p>
+                )}
+              </div>
+
+              <div className={styles.field}>
+                <label>Years of Experience</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="yearsOfExperience"
+                    value={editData.yearsOfExperience}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <p>{profileData.yearsOfExperience}</p>
                 )}
               </div>
 
@@ -441,6 +539,7 @@ export default function MentorProfile() {
           </div>
         </div>
       </div>
+      )}
     </DashboardLayout>
   );
 }

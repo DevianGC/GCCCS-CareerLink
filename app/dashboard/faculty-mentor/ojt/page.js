@@ -1,94 +1,77 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import styles from './ojt.module.css';
 
 export default function ManageStudentsOJT() {
   const [activeTab, setActiveTab] = useState('without-ojt');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const [studentsWithoutOJT, setStudentsWithoutOJT] = useState([
-    {
-      id: 1,
-      name: 'John Ian Ormides',
-      studentId: '202311310',
-      year: '3rd Year',
-      major: 'Information Technology',
-      email: '202311310@gordoncollege.edu.ph',
-      phone: '+1 (555) 234-5678',
-      gpa: 3.5,
-      lastContact: '2024-01-15',
-      status: 'Looking',
-      notes: 'Interested in software development roles'
-    },
-    {
-      id: 2,
-      name: 'John Ian',
-      studentId: '202311310',
-      year: '3rd Year',
-      major: 'Information Technology',
-      email: '202311310@gordoncollege.edu.ph',
-      phone: '+1 (555) 345-6789',
-      gpa: 3.2,
-      lastContact: '2024-01-10',
-      status: 'Not Started',
-      notes: 'Needs guidance on OJT application process'
-    },
-    {
-      id: 3,
-      name: 'Janico Sorio',
-      studentId: '202311241',
-      year: '4th Year',
-      major: 'Computer Science',
-      email: '202311241@gordoncollege.edu.ph',
-      phone: '+1 (555) 456-7890',
-      gpa: 3.8,
-      lastContact: '2024-01-08',
-      status: 'Applied',
-      notes: 'Applied to 3 companies, waiting for responses'
-    }
-  ]);
+  const [studentsWithoutOJT, setStudentsWithoutOJT] = useState([]);
 
-  const [studentsWithOJT, setStudentsWithOJT] = useState([
-    {
-      id: 4,
-      name: 'John Doe',
-      studentId: 'S2021001',
-      year: '4th Year',
-      major: 'Computer Science',
-      email: 'john.doe@student.edu',
-      phone: '+1 (555) 123-4567',
-      company: 'Tech Corp',
-      position: 'Software Engineer Intern',
-      startDate: '2024-02-01',
-      endDate: '2024-05-31',
-      supervisor: 'Jane Manager',
-      status: 'Active',
-      hoursCompleted: 120,
-      totalHours: 400
-    },
-    {
-      id: 5,
-      name: 'Jane Smith',
-      studentId: 'S2021002',
-      year: '3rd Year',
-      major: 'Information Technology',
-      email: 'jane.smith@student.edu',
-      phone: '+1 (555) 987-6543',
-      company: 'Web Solutions Inc',
-      position: 'Frontend Developer Intern',
-      startDate: '2024-01-15',
-      endDate: '2024-04-30',
-      supervisor: 'John Lead',
-      status: 'Active',
-      hoursCompleted: 180,
-      totalHours: 400
-    }
-  ]);
+  const [studentsWithOJT, setStudentsWithOJT] = useState([]);
 
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
+
+  // Fetch students data from API
+  useEffect(() => {
+    fetchStudentsData();
+  }, []);
+
+  const fetchStudentsData = async () => {
+    setLoading(true);
+    try {
+      // Fetch all students with role 'student'
+      const response = await fetch('/api/students');
+      if (response.ok) {
+        const data = await response.json();
+        const students = data.students || [];
+        
+        // Separate students with and without OJT
+        const withOJT = students.filter(s => s.ojtCompany || s.ojtStatus === 'Active');
+        const withoutOJT = students.filter(s => !s.ojtCompany && s.ojtStatus !== 'Active');
+        
+        setStudentsWithOJT(withOJT.map(s => ({
+          id: s.uid,
+          name: s.fullName || `${s.firstName} ${s.lastName}`,
+          studentId: s.studentId || 'N/A',
+          year: s.year || 'N/A',
+          major: s.major || s.degree || 'N/A',
+          email: s.email,
+          phone: s.phone || 'N/A',
+          company: s.ojtCompany || 'N/A',
+          position: s.ojtPosition || 'N/A',
+          startDate: s.ojtStartDate || 'N/A',
+          endDate: s.ojtEndDate || 'N/A',
+          supervisor: s.ojtSupervisor || 'N/A',
+          status: s.ojtStatus || 'N/A',
+          hoursCompleted: s.ojtHoursCompleted || 0,
+          totalHours: s.ojtTotalHours || 400
+        })));
+        
+        setStudentsWithoutOJT(withoutOJT.map(s => ({
+          id: s.uid,
+          name: s.fullName || `${s.firstName} ${s.lastName}`,
+          studentId: s.studentId || 'N/A',
+          year: s.year || 'N/A',
+          major: s.major || s.degree || 'N/A',
+          email: s.email,
+          phone: s.phone || 'N/A',
+          gpa: s.gpa || 'N/A',
+          lastContact: s.lastContact || 'N/A',
+          status: s.ojtSearchStatus || 'Not Started',
+          notes: s.ojtNotes || ''
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredStudents = (activeTab === 'without-ojt' ? studentsWithoutOJT : studentsWithOJT)
     .filter(student => 
@@ -193,9 +176,14 @@ export default function ManageStudentsOJT() {
         </div>
 
         {/* Students List */}
-        {activeTab === 'without-ojt' ? (
+        {loading ? (
+          <div className={styles.loading}>Loading students data...</div>
+        ) : activeTab === 'without-ojt' ? (
           <div className={styles.studentsList}>
-            {filteredStudents.map((student) => (
+            {filteredStudents.length === 0 ? (
+              <div className={styles.emptyState}>No students found</div>
+            ) : (
+              filteredStudents.map((student) => (
               <div key={student.id} className={styles.studentCard}>
                 <div className={styles.studentHeader}>
                   <div>
@@ -245,11 +233,14 @@ export default function ManageStudentsOJT() {
                   <button className={styles.viewBtn}>View Details</button>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         ) : (
           <div className={styles.ojtList}>
-            {filteredStudents.map((student) => (
+            {filteredStudents.length === 0 ? (
+              <div className={styles.emptyState}>No students found</div>
+            ) : (
+              filteredStudents.map((student) => (
               <div key={student.id} className={styles.ojtCard}>
                 <div className={styles.ojtHeader}>
                   <div>
@@ -312,12 +303,8 @@ export default function ManageStudentsOJT() {
                   <button className={styles.viewBtn}>View Details</button>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
-        )}
-
-        {filteredStudents.length === 0 && (
-          <p className={styles.emptyState}>No students found</p>
         )}
 
         {/* Contact Modal */}

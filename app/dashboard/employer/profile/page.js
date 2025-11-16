@@ -1,26 +1,82 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { firebaseDb, firebaseAuth } from '@/lib/firebaseClient';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout';
 import styles from './profile.module.css';
 
 export default function EmployerProfile() {
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [companyData, setCompanyData] = useState({
-    companyName: 'TechCorp Solutions Inc.',
-    industry: 'Information Technology',
-    companySize: '51-200 employees',
-    website: 'https://techcorp.com',
-    email: 'hr@techcorp.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Tech Street, Olongapo City',
-    description: 'TechCorp Solutions is a leading technology company specializing in innovative software solutions for businesses worldwide. We pride ourselves on creating cutting-edge products that transform how companies operate.',
-    founded: '2015',
-    headquarters: 'Silicon Valley, CA',
+    companyName: '',
+    industry: '',
+    companySize: '',
+    website: '',
+    email: '',
+    phone: '',
+    address: '',
+    description: '',
+    founded: '',
+    headquarters: '',
     logo: null
   });
 
   const [formData, setFormData] = useState(companyData);
+
+  // Get current user
+  useEffect(() => {
+    const unsubscribe = firebaseAuth?.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+      }
+    });
+    return () => unsubscribe?.();
+  }, []);
+
+  // Fetch employer profile from Firebase
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!firebaseDb || !currentUserId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userDocRef = doc(firebaseDb, 'users', currentUserId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log('Fetched user data:', userData); // Debug log
+          const profileData = {
+            companyName: userData.companyName || '',
+            industry: userData.industry || '',
+            companySize: userData.companySize || '',
+            website: userData.companyWebsite || userData.website || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            address: userData.address || userData.location || '',
+            description: userData.description || userData.bio || userData.about || '',
+            founded: userData.founded || userData.yearEstablished || '',
+            headquarters: userData.headquarters || userData.location || '',
+            logo: userData.logo || userData.logoUrl || null
+          };
+          console.log('Processed profile data:', profileData); // Debug log
+          setCompanyData(profileData);
+          setFormData(profileData);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [currentUserId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,11 +86,38 @@ export default function EmployerProfile() {
     }));
   };
 
-  const handleSave = () => {
-    setCompanyData(formData);
-    setIsEditing(false);
-    // Here you would typically save to your backend
-    console.log('Saving company data:', formData);
+  const handleSave = async () => {
+    if (!firebaseDb || !currentUserId) return;
+
+    try {
+      const userDocRef = doc(firebaseDb, 'users', currentUserId);
+      await updateDoc(userDocRef, {
+        companyName: formData.companyName,
+        industry: formData.industry,
+        companySize: formData.companySize,
+        companyWebsite: formData.website,
+        website: formData.website,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        location: formData.address,
+        description: formData.description,
+        bio: formData.description,
+        founded: formData.founded,
+        yearEstablished: formData.founded,
+        headquarters: formData.headquarters,
+        logo: formData.logo,
+        logoUrl: formData.logo,
+        updatedAt: new Date().toISOString()
+      });
+
+      setCompanyData(formData);
+      setIsEditing(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Failed to update profile. Please try again.');
+    }
   };
 
   const handleCancel = () => {
@@ -64,7 +147,12 @@ export default function EmployerProfile() {
           <p className={styles.pageSubtitle}>Manage your company information and branding</p>
         </div>
 
-        <div className={styles.profileCard}>
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <p>Loading profile...</p>
+          </div>
+        ) : (
+          <div className={styles.profileCard}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Company Information</h2>
             <div className={styles.headerActions}>
@@ -141,7 +229,7 @@ export default function EmployerProfile() {
                     className={styles.formInput}
                   />
                 ) : (
-                  <p className={styles.formValue}>{companyData.companyName}</p>
+                  <p className={styles.formValue}>{companyData.companyName || 'Not provided'}</p>
                 )}
               </div>
 
@@ -154,16 +242,19 @@ export default function EmployerProfile() {
                     onChange={handleInputChange}
                     className={styles.formSelect}
                   >
-                    <option value="Information Technology">Information Technology</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Education">Education</option>
-                    <option value="Manufacturing">Manufacturing</option>
-                    <option value="Retail">Retail</option>
-                    <option value="Other">Other</option>
+                    <option value="">Select Industry</option>
+                    <option value="technology">Technology</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="finance">Finance & Banking</option>
+                    <option value="education">Education</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="retail">Retail & E-commerce</option>
+                    <option value="construction">Construction</option>
+                    <option value="hospitality">Hospitality & Tourism</option>
+                    <option value="other">Other</option>
                   </select>
                 ) : (
-                  <p className={styles.formValue}>{companyData.industry}</p>
+                  <p className={styles.formValue}>{companyData.industry || 'Not provided'}</p>
                 )}
               </div>
 
@@ -176,15 +267,16 @@ export default function EmployerProfile() {
                     onChange={handleInputChange}
                     className={styles.formSelect}
                   >
-                    <option value="1-10 employees">1-10 employees</option>
-                    <option value="11-50 employees">11-50 employees</option>
-                    <option value="51-200 employees">51-200 employees</option>
-                    <option value="201-500 employees">201-500 employees</option>
-                    <option value="501-1000 employees">501-1000 employees</option>
-                    <option value="1000+ employees">1000+ employees</option>
+                    <option value="">Select Size</option>
+                    <option value="1-10">1-10 employees</option>
+                    <option value="11-50">11-50 employees</option>
+                    <option value="51-200">51-200 employees</option>
+                    <option value="201-500">201-500 employees</option>
+                    <option value="501-1000">501-1000 employees</option>
+                    <option value="1000+">1000+ employees</option>
                   </select>
                 ) : (
-                  <p className={styles.formValue}>{companyData.companySize}</p>
+                  <p className={styles.formValue}>{companyData.companySize || 'Not provided'}</p>
                 )}
               </div>
 
@@ -200,7 +292,7 @@ export default function EmployerProfile() {
                     placeholder="e.g., 2015"
                   />
                 ) : (
-                  <p className={styles.formValue}>{companyData.founded}</p>
+                  <p className={styles.formValue}>{companyData.founded || 'Not provided'}</p>
                 )}
               </div>
 
@@ -216,9 +308,13 @@ export default function EmployerProfile() {
                     placeholder="https://yourcompany.com"
                   />
                 ) : (
-                  <a href={companyData.website} target="_blank" rel="noopener noreferrer" className={styles.formLink}>
-                    {companyData.website}
-                  </a>
+                  <p className={styles.formValue}>
+                    {companyData.website ? (
+                      <a href={companyData.website} target="_blank" rel="noopener noreferrer" className={styles.formLink}>
+                        {companyData.website}
+                      </a>
+                    ) : 'Not provided'}
+                  </p>
                 )}
               </div>
 
@@ -233,7 +329,7 @@ export default function EmployerProfile() {
                     className={styles.formInput}
                   />
                 ) : (
-                  <p className={styles.formValue}>{companyData.email}</p>
+                  <p className={styles.formValue}>{companyData.email || 'Not provided'}</p>
                 )}
               </div>
 
@@ -248,7 +344,7 @@ export default function EmployerProfile() {
                     className={styles.formInput}
                   />
                 ) : (
-                  <p className={styles.formValue}>{companyData.phone}</p>
+                  <p className={styles.formValue}>{companyData.phone || 'Not provided'}</p>
                 )}
               </div>
 
@@ -263,7 +359,7 @@ export default function EmployerProfile() {
                     className={styles.formInput}
                   />
                 ) : (
-                  <p className={styles.formValue}>{companyData.headquarters}</p>
+                  <p className={styles.formValue}>{companyData.headquarters || 'Not provided'}</p>
                 )}
               </div>
             </div>
@@ -279,7 +375,7 @@ export default function EmployerProfile() {
                   rows="2"
                 />
               ) : (
-                <p className={styles.formValue}>{companyData.address}</p>
+                <p className={styles.formValue}>{companyData.address || 'Not provided'}</p>
               )}
             </div>
 
@@ -295,11 +391,12 @@ export default function EmployerProfile() {
                   placeholder="Tell us about your company..."
                 />
               ) : (
-                <p className={styles.formValue}>{companyData.description}</p>
+                <p className={styles.formValue}>{companyData.description || 'Not provided'}</p>
               )}
             </div>
           </div>
         </div>
+        )}
       </div>
     </DashboardLayout>
   );

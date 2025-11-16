@@ -1,87 +1,111 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import styles from './reports.module.css';
 
 export default function ReportsActivityLog() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [dateRange, setDateRange] = useState('thisMonth');
-
-  const [activities, setActivities] = useState([
-    {
-      id: 1,
-      type: 'session',
-      studentName: 'Mike Johnson',
-      studentId: 'S2021003',
-      action: 'Completed mentoring session',
-      topic: 'Academic Advising',
-      date: '2024-01-15',
-      time: '11:00 AM',
-      duration: '1 hour',
-      feedback: 'Student is well-prepared and shows strong academic interest.',
-      rating: 5
-    },
-    {
-      id: 2,
-      type: 'feedback',
-      studentName: 'Sarah Williams',
-      studentId: 'S2021004',
-      action: 'Provided feedback',
-      topic: 'OJT Application Review',
-      date: '2024-01-12',
-      time: '2:30 PM',
-      feedback: 'Resume needs improvement. Suggested adding more technical skills.',
-      rating: 4
-    },
-    {
-      id: 3,
-      type: 'session',
-      studentName: 'John Doe',
-      studentId: 'S2021001',
-      action: 'Completed mentoring session',
-      topic: 'Career Path Discussion',
-      date: '2024-01-10',
-      time: '10:00 AM',
-      duration: '1 hour',
-      feedback: 'Discussed various career options in software development.',
-      rating: 5
-    },
-    {
-      id: 4,
-      type: 'meeting',
-      studentName: 'Jane Smith',
-      studentId: 'S2021002',
-      action: 'Scheduled meeting',
-      topic: 'OJT Progress Review',
-      date: '2024-01-22',
-      time: '2:00 PM',
-      duration: '45 mins',
-      status: 'upcoming'
-    },
-    {
-      id: 5,
-      type: 'session',
-      studentName: 'Emily Davis',
-      studentId: 'S2021005',
-      action: 'Completed mentoring session',
-      topic: 'Technical Interview Preparation',
-      date: '2024-01-08',
-      time: '3:00 PM',
-      duration: '1.5 hours',
-      feedback: 'Practiced coding problems. Student needs more practice with algorithms.',
-      rating: 4
-    }
-  ]);
-
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState({
-    totalSessions: 15,
-    totalHours: 22.5,
-    averageRating: 4.6,
-    activeMentees: 8,
-    completedThisMonth: 5,
-    upcomingThisWeek: 3
+    totalSessions: 0,
+    totalHours: 0,
+    averageRating: 0,
+    activeMentees: 0,
+    completedThisMonth: 0,
+    upcomingThisWeek: 0
   });
+
+  useEffect(() => {
+    fetchActivities();
+  }, []);
+
+  const fetchActivities = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/mentorship-requests');
+      if (response.ok) {
+        const data = await response.json();
+        const requests = data.requests || [];
+        
+        // Convert requests to activities format
+        const formattedActivities = requests.map(req => ({
+          id: req.id,
+          type: req.status === 'completed' ? 'session' : 'meeting',
+          studentName: req.studentName,
+          studentId: req.studentIdNumber,
+          action: req.status === 'completed' ? 'Completed mentoring session' : 
+                  req.status === 'approved' ? 'Scheduled meeting' : 
+                  'Pending request',
+          topic: req.topic,
+          date: req.status === 'completed' ? req.scheduledDate : 
+                req.status === 'approved' ? req.scheduledDate : req.preferredDate,
+          time: req.status === 'completed' ? req.scheduledTime : 
+                req.status === 'approved' ? req.scheduledTime : req.preferredTime,
+          duration: req.duration,
+          feedback: req.feedback || '',
+          notes: req.completionNotes || '',
+          rating: req.rating || 0,
+          status: req.status
+        }));
+
+        setActivities(formattedActivities);
+        calculateStatistics(formattedActivities);
+      }
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateStatistics = (activities) => {
+    const completed = activities.filter(a => a.status === 'completed');
+    const approved = activities.filter(a => a.status === 'approved');
+    
+    // Calculate total hours from duration strings
+    const totalHours = completed.reduce((sum, activity) => {
+      const duration = activity.duration || '0 hour';
+      const hours = parseFloat(duration) || 0;
+      return sum + hours;
+    }, 0);
+
+    // Calculate average rating
+    const ratedSessions = completed.filter(a => a.rating > 0);
+    const averageRating = ratedSessions.length > 0 
+      ? ratedSessions.reduce((sum, a) => sum + a.rating, 0) / ratedSessions.length 
+      : 0;
+
+    // Get unique students
+    const uniqueStudents = new Set(activities.map(a => a.studentId));
+
+    // Calculate this month's completed sessions
+    const now = new Date();
+    const thisMonth = completed.filter(a => {
+      const activityDate = new Date(a.date);
+      return activityDate.getMonth() === now.getMonth() && 
+             activityDate.getFullYear() === now.getFullYear();
+    });
+
+    // Calculate upcoming this week
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    const upcomingThisWeek = approved.filter(a => {
+      const activityDate = new Date(a.date);
+      return activityDate >= now && activityDate <= oneWeekFromNow;
+    });
+
+    setStatistics({
+      totalSessions: completed.length,
+      totalHours: totalHours.toFixed(1),
+      averageRating: averageRating.toFixed(1),
+      activeMentees: uniqueStudents.size,
+      completedThisMonth: thisMonth.length,
+      upcomingThisWeek: upcomingThisWeek.length
+    });
+  };
 
   const filteredActivities = activities.filter(activity => {
     if (activeFilter === 'all') return true;
@@ -227,66 +251,73 @@ export default function ReportsActivityLog() {
 
         {/* Activity Timeline */}
         <div className={styles.timeline}>
-          {filteredActivities.map((activity) => (
-            <div key={activity.id} className={styles.activityCard}>
-              <div className={`${styles.activityIcon} ${getTypeClass(activity.type)}`}>
-                {getActivityIcon(activity.type)}
-              </div>
-              
-              <div className={styles.activityContent}>
-                <div className={styles.activityHeader}>
-                  <div>
-                    <h3>{activity.action}</h3>
-                    <p className={styles.studentInfo}>
-                      {activity.studentName} ({activity.studentId})
-                    </p>
-                  </div>
-                  <div className={styles.activityMeta}>
-                    <span className={styles.activityDate}>{activity.date}</span>
-                    <span className={styles.activityTime}>{activity.time}</span>
-                  </div>
-                </div>
-
-                <div className={styles.activityDetails}>
-                  <div className={styles.detailItem}>
-                    <strong>Topic:</strong> {activity.topic}
-                  </div>
-                  {activity.duration && (
-                    <div className={styles.detailItem}>
-                      <strong>Duration:</strong> {activity.duration}
-                    </div>
-                  )}
-                  {activity.feedback && (
-                    <div className={styles.detailItem}>
-                      <strong>Notes:</strong> {activity.feedback}
-                    </div>
-                  )}
-                  {activity.rating && (
-                    <div className={styles.rating}>
-                      {[...Array(5)].map((_, i) => (
-                        <svg 
-                          key={i} 
-                          width="16" 
-                          height="16" 
-                          viewBox="0 0 24 24" 
-                          fill={i < activity.rating ? "currentColor" : "none"}
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                      ))}
-                    </div>
-                  )}
-                  {activity.status === 'upcoming' && (
-                    <span className={styles.upcomingBadge}>Upcoming</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {filteredActivities.length === 0 && (
+          {loading ? (
+            <p className={styles.loading}>Loading activities...</p>
+          ) : filteredActivities.length === 0 ? (
             <p className={styles.emptyState}>No activities found</p>
+          ) : (
+            filteredActivities.map((activity) => (
+              <div key={activity.id} className={styles.activityCard}>
+                <div className={`${styles.activityIcon} ${getTypeClass(activity.type)}`}>
+                  {getActivityIcon(activity.type)}
+                </div>
+                
+                <div className={styles.activityContent}>
+                  <div className={styles.activityHeader}>
+                    <div>
+                      <h3>{activity.action}</h3>
+                      <p className={styles.studentInfo}>
+                        {activity.studentName} ({activity.studentId})
+                      </p>
+                    </div>
+                    <div className={styles.activityMeta}>
+                      <span className={styles.activityDate}>{activity.date}</span>
+                      <span className={styles.activityTime}>{activity.time}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.activityDetails}>
+                    <div className={styles.detailItem}>
+                      <strong>Topic:</strong> {activity.topic}
+                    </div>
+                    {activity.duration && (
+                      <div className={styles.detailItem}>
+                        <strong>Duration:</strong> {activity.duration}
+                      </div>
+                    )}
+                    {activity.notes && (
+                      <div className={styles.detailItem}>
+                        <strong>Notes:</strong> {activity.notes}
+                      </div>
+                    )}
+                    {activity.feedback && (
+                      <div className={styles.detailItem}>
+                        <strong>Feedback:</strong> {activity.feedback}
+                      </div>
+                    )}
+                    {activity.rating > 0 && (
+                      <div className={styles.rating}>
+                        {[...Array(5)].map((_, i) => (
+                          <svg 
+                            key={i} 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill={i < activity.rating ? "currentColor" : "none"}
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                          </svg>
+                        ))}
+                      </div>
+                    )}
+                    {activity.status === 'approved' && (
+                      <span className={styles.upcomingBadge}>Upcoming</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>

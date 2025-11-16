@@ -5,7 +5,18 @@ import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestor
 import { firebaseDb, firebaseAuth } from '@/lib/firebaseClient';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout';
 import styles from './matching.module.css';
-import { getScoreLabel, getInitials } from './mockData';
+
+// Utility functions
+const getScoreLabel = (score) => {
+  if (score >= 90) return 'Excellent Match';
+  if (score >= 80) return 'Good Match';
+  if (score >= 70) return 'Fair Match';
+  return 'Low Match';
+};
+
+const getInitials = (name) => {
+  return name.split(' ').map(n => n[0]).join('');
+};
 
 export default function CandidateMatching() {
   const [selectedJob, setSelectedJob] = useState('');

@@ -32,7 +32,8 @@ const updateProfileSchema = z.object({
 
 export async function GET() {
   try {
-    const session = cookies().get('session')?.value;
+    const cookieStore = await cookies();
+    const session = cookieStore.get('session')?.value;
     if (!session) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
         status: 401, 

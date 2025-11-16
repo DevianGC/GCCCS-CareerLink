@@ -69,7 +69,7 @@ export default function EmployerAnalytics() {
     // Calculate job performance
     const jobPerformance = jobs.map(job => {
       const jobApps = applications.filter(app => app.jobId === job.id);
-      const views = job.views || Math.floor(Math.random() * 500) + 100; // Mock views for now
+      const views = job.views || 0; // Use real views from job data
       const appCount = jobApps.length;
       const conversionRate = views > 0 ? ((appCount / views) * 100).toFixed(1) : 0;
 
@@ -108,23 +108,48 @@ export default function EmployerAnalytics() {
       { stage: 'Hired', count: hiredCount, percentage: totalApplications > 0 ? ((hiredCount / totalApplications) * 100).toFixed(1) : 0 }
     ];
 
-    // Calculate application trends (last 4 weeks)
+    // Calculate application trends based on actual dates (last 4 weeks)
+    const now = new Date();
     const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
     const applicationTrends = weeks.map((week, index) => {
-      const weekApps = applications.filter(() => Math.random() > 0.5); // Simplified for now
+      const weekStart = new Date(now.getTime() - (4 - index) * 7 * 24 * 60 * 60 * 1000);
+      const weekEnd = new Date(now.getTime() - (3 - index) * 7 * 24 * 60 * 60 * 1000);
+      
+      const weekApps = applications.filter(app => {
+        const appDate = new Date(app.createdAt || app.date);
+        return appDate >= weekStart && appDate < weekEnd;
+      });
+
+      const weekJobs = jobs.filter(job => {
+        const jobDate = new Date(job.createdAt || job.posted);
+        return jobDate >= weekStart && jobDate < weekEnd;
+      });
+
+      const weekViews = weekJobs.reduce((sum, job) => sum + (job.views || 0), 0);
+
       return {
         period: week,
-        applications: Math.floor(applications.length / 4) + index * 3,
-        views: Math.floor(totalViews / 4) + index * 50
+        applications: weekApps.length,
+        views: weekViews
       };
     });
+
+    // Calculate average time to hire
+    const hiredApps = applications.filter(app => app.status === 'Hired' && app.hiredAt && app.createdAt);
+    const avgTimeToHire = hiredApps.length > 0
+      ? Math.round(hiredApps.reduce((sum, app) => {
+          const created = new Date(app.createdAt);
+          const hired = new Date(app.hiredAt);
+          return sum + (hired - created) / (1000 * 60 * 60 * 24);
+        }, 0) / hiredApps.length)
+      : 0;
 
     setAnalyticsData({
       overview: {
         totalViews,
         totalApplications,
         conversionRate: parseFloat(conversionRate),
-        avgTimeToHire: 18 // Mock data
+        avgTimeToHire
       },
       jobPerformance,
       applicationTrends,

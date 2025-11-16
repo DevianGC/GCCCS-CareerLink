@@ -11,21 +11,14 @@ export default function MentorshipGroups() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [myGroups, setMyGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [applications, setApplications] = useState([]);
 
   const [newGroup, setNewGroup] = useState({
     title: '',
     description: '',
-    topic: '',
-    maxParticipants: 10,
-    schedule: 'weekly',
-    startDate: '',
-    duration: '60',
-    meetingLink: '',
-    prerequisites: '',
-    tags: []
+    category: 'Career Development',
+    maxMembers: 10
   });
-
-  const [newTag, setNewTag] = useState('');
 
   useEffect(() => {
     fetchGroups();
@@ -33,18 +26,15 @@ export default function MentorshipGroups() {
 
   const fetchGroups = async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/alumni/mentorship-groups');
-      // const data = await response.json();
-      // setMyGroups(data.groups);
-
-      // Mock data - empty by default
-      const mockGroups = [];
-
-      setMyGroups(mockGroups);
-      setLoading(false);
+      setLoading(true);
+      const res = await fetch('/api/mentorship-groups?myGroups=true', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setMyGroups(data.groups || []);
+      }
     } catch (error) {
       console.error('Error fetching groups:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -52,105 +42,111 @@ export default function MentorshipGroups() {
   const handleCreateGroup = async (e) => {
     e.preventDefault();
     try {
-      // TODO: Implement API call
-      console.log('Creating group:', newGroup);
-
-      const group = {
-        id: myGroups.length + 1,
-        ...newGroup,
-        currentParticipants: 0,
-        status: 'active',
-        applicants: [],
-        participants: []
-      };
-
-      setMyGroups(prev => [...prev, group]);
-      setShowCreateModal(false);
-      setNewGroup({
-        title: '',
-        description: '',
-        topic: '',
-        maxParticipants: 10,
-        schedule: 'weekly',
-        startDate: '',
-        duration: '60',
-        meetingLink: '',
-        prerequisites: '',
-        tags: []
+      const res = await fetch('/api/mentorship-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newGroup)
       });
-      alert('Mentorship group created successfully!');
+
+      if (res.ok) {
+        alert('Mentorship group created successfully!');
+        setShowCreateModal(false);
+        setNewGroup({
+          title: '',
+          description: '',
+          category: 'Career Development',
+          maxMembers: 10
+        });
+        fetchGroups();
+      } else {
+        const contentType = res.headers.get('content-type');
+        let errorMessage = 'Unknown error';
+        
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          errorMessage = errorData.error || 'Failed to create group';
+          console.error('Failed to create group:', errorData);
+        } else {
+          const textError = await res.text();
+          errorMessage = textError || `HTTP ${res.status}`;
+          console.error('Failed to create group (non-JSON):', textError);
+        }
+        
+        alert(`Failed to create group: ${errorMessage}`);
+      }
     } catch (error) {
       console.error('Error creating group:', error);
-      alert('Failed to create group. Please try again.');
+      alert(`Failed to create group: ${error.message}`);
     }
   };
 
-  const handleAddTag = () => {
-    if (newTag.trim() && !newGroup.tags.includes(newTag.trim())) {
-      setNewGroup(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag('');
-    }
-  };
-
-  const handleRemoveTag = (tag) => {
-    setNewGroup(prev => ({
-      ...prev,
-      tags: prev.tags.filter(t => t !== tag)
-    }));
-  };
-
-  const handleViewApplicants = (group) => {
-    setSelectedGroup(group);
-    setShowApplicantsModal(true);
-  };
-
-  const handleAcceptApplicant = (groupId, applicantId) => {
-    setMyGroups(prev => prev.map(group => {
-      if (group.id === groupId) {
-        const applicant = group.applicants.find(a => a.id === applicantId);
-        return {
-          ...group,
-          applicants: group.applicants.map(a =>
-            a.id === applicantId ? { ...a, status: 'accepted' } : a
-          ),
-          currentParticipants: group.currentParticipants + 1,
-          participants: [...group.participants, applicant]
-        };
+  const handleViewApplicants = async (group) => {
+    try {
+      const res = await fetch(`/api/mentorship-groups/${group.id}/applications`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setApplications(data.applications || []);
+        setSelectedGroup(group);
+        setShowApplicantsModal(true);
       }
-      return group;
-    }));
-    alert('Applicant accepted!');
-  };
-
-  const handleRejectApplicant = (groupId, applicantId) => {
-    setMyGroups(prev => prev.map(group => {
-      if (group.id === groupId) {
-        return {
-          ...group,
-          applicants: group.applicants.map(a =>
-            a.id === applicantId ? { ...a, status: 'rejected' } : a
-          )
-        };
-      }
-      return group;
-    }));
-    alert('Applicant rejected.');
-  };
-
-  const handleDeleteGroup = (groupId) => {
-    if (confirm('Are you sure you want to delete this mentorship group?')) {
-      setMyGroups(prev => prev.filter(group => group.id !== groupId));
-      alert('Group deleted successfully.');
+    } catch (error) {
+      console.error('Error fetching applications:', error);
     }
   };
 
-  const handleUpdateMeetingLink = (groupId, newLink) => {
-    setMyGroups(prev => prev.map(group =>
-      group.id === groupId ? { ...group, meetingLink: newLink } : group
-    ));
+  const handleAcceptApplicant = async (applicationId) => {
+    try {
+      const res = await fetch(`/api/mentorship-groups/${selectedGroup.id}/applications/${applicationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'accepted' })
+      });
+
+      if (res.ok) {
+        alert('Applicant accepted!');
+        handleViewApplicants(selectedGroup); // Refresh applications
+        fetchGroups(); // Refresh groups to update member count
+      }
+    } catch (error) {
+      console.error('Error accepting applicant:', error);
+      alert('Failed to accept applicant');
+    }
+  };
+
+  const handleRejectApplicant = async (applicationId) => {
+    try {
+      const res = await fetch(`/api/mentorship-groups/${selectedGroup.id}/applications/${applicationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'declined' })
+      });
+
+      if (res.ok) {
+        alert('Applicant declined.');
+        handleViewApplicants(selectedGroup); // Refresh applications
+      }
+    } catch (error) {
+      console.error('Error declining applicant:', error);
+      alert('Failed to decline applicant');
+    }
+  };
+
+  const handleDeleteGroup = async (groupId) => {
+    if (confirm('Are you sure you want to close this mentorship group?')) {
+      try {
+        const res = await fetch(`/api/mentorship-groups/${groupId}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          alert('Group closed successfully.');
+          fetchGroups();
+        }
+      } catch (error) {
+        console.error('Error closing group:', error);
+        alert('Failed to close group');
+      }
+    }
   };
 
   if (loading) {
@@ -197,7 +193,7 @@ export default function MentorshipGroups() {
                     <div className={styles.groupHeader}>
                       <div>
                         <h3 className={styles.groupTitle}>{group.title}</h3>
-                        <p className={styles.groupTopic}>{group.topic}</p>
+                        <p className={styles.groupTopic}>{group.category}</p>
                       </div>
                       <span className={`${styles.statusBadge} ${styles[group.status]}`}>
                         {group.status}
@@ -205,12 +201,6 @@ export default function MentorshipGroups() {
                     </div>
 
                     <p className={styles.groupDescription}>{group.description}</p>
-
-                    <div className={styles.groupTags}>
-                      {group.tags.map((tag, index) => (
-                        <span key={index} className={styles.tag}>{tag}</span>
-                      ))}
-                    </div>
 
                     <div className={styles.groupDetails}>
                       <div className={styles.detailItem}>
@@ -222,27 +212,17 @@ export default function MentorshipGroups() {
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                           </svg>
                         </span>
-                        <span>{group.currentParticipants} / {group.maxParticipants} participants</span>
+                        <span>{group.currentMembers} / {group.maxMembers} members</span>
                       </div>
                       <div className={styles.detailItem}>
                         <span className={styles.detailIcon}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <rect x="3" y="5" width="18" height="14" rx="2"/>
+                            <path d="M7 10h10" strokeLinecap="round"/>
+                            <path d="M7 14h6" strokeLinecap="round"/>
                           </svg>
                         </span>
-                        <span>{group.schedule}</span>
-                      </div>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailIcon}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                          </svg>
-                        </span>
-                        <span>{group.duration} min</span>
+                        <span>{group.pendingApplications || 0} pending applications</span>
                       </div>
                       <div className={styles.detailItem}>
                         <span className={styles.detailIcon}>
@@ -252,54 +232,26 @@ export default function MentorshipGroups() {
                             <line x1="12" y1="8" x2="12" y2="16"/>
                           </svg>
                         </span>
-                        <span>Starts: {new Date(group.startDate).toLocaleDateString()}</span>
+                        <span>Created: {group.createdAt?.seconds 
+                          ? new Date(group.createdAt.seconds * 1000).toLocaleDateString()
+                          : group.createdAt 
+                            ? new Date(group.createdAt).toLocaleDateString()
+                            : 'Recently'}</span>
                       </div>
                     </div>
-
-                    <div className={styles.meetingLinkSection}>
-                      <label className={styles.linkLabel}>Meeting Link:</label>
-                      <div className={styles.linkInput}>
-                        <input
-                          type="url"
-                          value={group.meetingLink}
-                          onChange={(e) => handleUpdateMeetingLink(group.id, e.target.value)}
-                          placeholder="Add meeting link..."
-                        />
-                        <a
-                          href={group.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.joinButton}
-                          disabled={!group.meetingLink}
-                        >
-                          Join
-                        </a>
-                      </div>
-                    </div>
-
-                    {group.applicants.filter(a => a.status === 'pending').length > 0 && (
-                      <div className={styles.applicantNotice}>
-                        <span className={styles.noticeIcon}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-                          </svg>
-                        </span>
-                        <span>{group.applicants.filter(a => a.status === 'pending').length} pending application(s)</span>
-                      </div>
-                    )}
 
                     <div className={styles.groupActions}>
                       <button
                         className={styles.viewApplicantsButton}
                         onClick={() => handleViewApplicants(group)}
                       >
-                        View Applicants ({group.applicants.length})
+                        View Applications
                       </button>
                       <button
                         className={styles.deleteButton}
                         onClick={() => handleDeleteGroup(group.id)}
                       >
-                        Delete Group
+                        Close Group
                       </button>
                     </div>
                   </div>
@@ -343,7 +295,7 @@ export default function MentorshipGroups() {
                     type="text"
                     value={newGroup.title}
                     onChange={(e) => setNewGroup({ ...newGroup, title: e.target.value })}
-                    placeholder="e.g., Career in Software Engineering"
+                    placeholder="e.g., Frontend Development Career Path"
                     required
                   />
                 </div>
@@ -353,7 +305,7 @@ export default function MentorshipGroups() {
                   <textarea
                     value={newGroup.description}
                     onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                    placeholder="Describe what participants will learn..."
+                    placeholder="Describe what students will learn and achieve in this group..."
                     rows="4"
                     required
                   />
@@ -361,111 +313,30 @@ export default function MentorshipGroups() {
 
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label>Topic *</label>
-                    <input
-                      type="text"
-                      value={newGroup.topic}
-                      onChange={(e) => setNewGroup({ ...newGroup, topic: e.target.value })}
-                      placeholder="e.g., Software Development"
-                      required
-                    />
+                    <label>Category</label>
+                    <select
+                      value={newGroup.category}
+                      onChange={(e) => setNewGroup({ ...newGroup, category: e.target.value })}
+                    >
+                      <option>Career Development</option>
+                      <option>Technical Skills</option>
+                      <option>Networking</option>
+                      <option>Interview Preparation</option>
+                      <option>Resume Building</option>
+                      <option>General Mentorship</option>
+                    </select>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>Max Participants *</label>
+                    <label>Max Members *</label>
                     <input
                       type="number"
-                      value={newGroup.maxParticipants}
-                      onChange={(e) => setNewGroup({ ...newGroup, maxParticipants: parseInt(e.target.value) })}
-                      min="3"
+                      value={newGroup.maxMembers}
+                      onChange={(e) => setNewGroup({ ...newGroup, maxMembers: parseInt(e.target.value) })}
+                      min="1"
                       max="50"
                       required
                     />
-                  </div>
-                </div>
-
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Schedule *</label>
-                    <select
-                      value={newGroup.schedule}
-                      onChange={(e) => setNewGroup({ ...newGroup, schedule: e.target.value })}
-                      required
-                    >
-                      <option value="weekly">Weekly</option>
-                      <option value="bi-weekly">Bi-weekly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Duration (minutes) *</label>
-                    <select
-                      value={newGroup.duration}
-                      onChange={(e) => setNewGroup({ ...newGroup, duration: e.target.value })}
-                      required
-                    >
-                      <option value="45">45 minutes</option>
-                      <option value="60">60 minutes</option>
-                      <option value="90">90 minutes</option>
-                      <option value="120">120 minutes</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Start Date *</label>
-                  <input
-                    type="date"
-                    value={newGroup.startDate}
-                    onChange={(e) => setNewGroup({ ...newGroup, startDate: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Meeting Link</label>
-                  <input
-                    type="url"
-                    value={newGroup.meetingLink}
-                    onChange={(e) => setNewGroup({ ...newGroup, meetingLink: e.target.value })}
-                    placeholder="https://meet.google.com/... or https://zoom.us/..."
-                  />
-                  <small>You can add or update this later</small>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Prerequisites (Optional)</label>
-                  <textarea
-                    value={newGroup.prerequisites}
-                    onChange={(e) => setNewGroup({ ...newGroup, prerequisites: e.target.value })}
-                    placeholder="Any required knowledge or preparation..."
-                    rows="2"
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Tags</label>
-                  <div className={styles.tagsContainer}>
-                    {newGroup.tags.map((tag, index) => (
-                      <span key={index} className={styles.tagItem}>
-                        {tag}
-                        <button type="button" onClick={() => handleRemoveTag(tag)}>×</button>
-                      </span>
-                    ))}
-                  </div>
-                  <div className={styles.addTagInput}>
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={(e) => setNewTag(e.target.value)}
-                      placeholder="Add tag..."
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    />
-                    <button type="button" onClick={handleAddTag} className={styles.addTagButton}>
-                      Add
-                    </button>
                   </div>
                 </div>
 
@@ -487,41 +358,41 @@ export default function MentorshipGroups() {
           <div className={styles.modal}>
             <div className={styles.modalContent}>
               <div className={styles.modalHeader}>
-                <h2>Applicants for "{selectedGroup.title}"</h2>
+                <h2>Applications for "{selectedGroup.title}"</h2>
                 <button className={styles.closeButton} onClick={() => setShowApplicantsModal(false)}>
                   ×
                 </button>
               </div>
 
               <div className={styles.applicantsList}>
-                {selectedGroup.applicants.length > 0 ? (
-                  selectedGroup.applicants.map((applicant) => (
-                    <div key={applicant.id} className={styles.applicantCard}>
+                {applications.length > 0 ? (
+                  applications.map((application) => (
+                    <div key={application.id} className={styles.applicantCard}>
                       <div className={styles.applicantInfo}>
-                        <h3>{applicant.name}</h3>
-                        <p>{applicant.major} • {applicant.year}</p>
+                        <h3>{application.studentName}</h3>
+                        <p className={styles.applicationMessage}>{application.message}</p>
                         <p className={styles.appliedDate}>
-                          Applied: {new Date(applicant.appliedDate).toLocaleDateString()}
+                          Applied: {new Date(application.appliedAt?.seconds * 1000).toLocaleDateString()}
                         </p>
                       </div>
                       <div className={styles.applicantStatus}>
-                        <span className={`${styles.statusLabel} ${styles[applicant.status]}`}>
-                          {applicant.status}
+                        <span className={`${styles.statusLabel} ${styles[application.status]}`}>
+                          {application.status}
                         </span>
-                        {applicant.status === 'pending' && (
+                        {application.status === 'pending' && (
                           <div className={styles.applicantActions}>
                             <button
                               className={styles.acceptBtn}
-                              onClick={() => handleAcceptApplicant(selectedGroup.id, applicant.id)}
-                              disabled={selectedGroup.currentParticipants >= selectedGroup.maxParticipants}
+                              onClick={() => handleAcceptApplicant(application.id)}
+                              disabled={selectedGroup.currentMembers >= selectedGroup.maxMembers}
                             >
                               Accept
                             </button>
                             <button
                               className={styles.rejectBtn}
-                              onClick={() => handleRejectApplicant(selectedGroup.id, applicant.id)}
+                              onClick={() => handleRejectApplicant(application.id)}
                             >
-                              Reject
+                              Decline
                             </button>
                           </div>
                         )}
@@ -530,7 +401,7 @@ export default function MentorshipGroups() {
                   ))
                 ) : (
                   <div className={styles.noApplicants}>
-                    <p>No applicants yet</p>
+                    <p>No applications yet</p>
                   </div>
                 )}
               </div>

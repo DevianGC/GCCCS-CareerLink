@@ -1,81 +1,131 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import Card, { CardHeader, CardBody, CardFooter } from '../../../../components/UI/Card/Card';
 import Button from '../../../../components/UI/Button/Button';
 import styles from './mentorship.module.css';
 
-// Example mentor data (replace with API in real app)
-const MENTORS = [
-  {
-    id: 1,
-    name: 'Maria Santos',
-    title: 'Senior Frontend Engineer',
-    company: 'TechCorp',
-    expertise: ['React', 'UI/UX', 'Career Growth'],
-    bio: '10+ years in web development, passionate about mentoring new grads.',
-    availableSlots: ['2025-11-10 10:00', '2025-11-12 14:00'],
-  },
-  {
-    id: 2,
-    name: 'John Lee',
-    title: 'Data Analyst Lead',
-    company: 'DataViz',
-    expertise: ['SQL', 'Python', 'Analytics'],
-    bio: 'Data enthusiast and analytics mentor.',
-    availableSlots: ['2025-11-11 09:00', '2025-11-13 16:00'],
-  },
-  {
-    id: 3,
-    name: 'Aisha Gomez',
-    title: 'UX Designer',
-    company: 'Creative Solutions',
-    expertise: ['UX', 'Figma', 'Portfolio Review'],
-    bio: 'Helping students break into UX design.',
-    availableSlots: ['2025-11-14 11:00', '2025-11-15 15:00'],
-  },
-];
-
-
 export default function MentorshipPage() {
+  const [mentors, setMentors] = useState([]);
+  const [myRequests, setMyRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMentor, setSelectedMentor] = useState(null);
-  const [requestSent, setRequestSent] = useState(false);
-  const [requestError, setRequestError] = useState('');
-  const [message, setMessage] = useState('');
-  const [scheduledSlot, setScheduledSlot] = useState('');
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestForm, setRequestForm] = useState({
+    topic: '',
+    preferredDate: '',
+    preferredTime: '',
+    duration: '1 hour',
+    sessionType: 'In-person',
+    message: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
 
-  // Simulate getting student info (replace with real user/profile fetch)
-  const student = { name: 'Student User', email: 'student@example.com' };
+  useEffect(() => {
+    fetchMentors();
+    fetchMyRequests();
+  }, []);
 
-  // POST mentorship request to API endpoint for Gmail integration
-  const handleRequest = async () => {
-    if (!selectedMentor) return;
-    setRequestError('');
-    setRequestSent('sending');
+  const fetchMentors = async () => {
     try {
-      const res = await fetch('/api/mentorship-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mentorId: selectedMentor.id,
-          mentorName: selectedMentor.name,
-          mentorEmail: selectedMentor.email || '', // add mentor email if available
-          studentName: student.name,
-          studentEmail: student.email,
-          message: `Mentorship request for ${selectedMentor.name} from ${student.name}`,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to send request');
-      setRequestSent(true);
-      setTimeout(() => setRequestSent(false), 2000);
-    } catch (e) {
-      setRequestError('Failed to send mentorship request. Please try again.');
-      setRequestSent(false);
+      const response = await fetch('/api/faculty-mentors');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched mentors:', data.mentors);
+        setMentors(data.mentors || []);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to fetch mentors:', response.status, errorData);
+        alert(`Failed to load mentors: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error fetching mentors:', error);
+      alert('Error loading mentors. Please check your connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSchedule = (slot) => {
-    setScheduledSlot(slot);
+  const fetchMyRequests = async () => {
+    try {
+      const response = await fetch('/api/mentorship-requests');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched requests:', data.requests);
+        setMyRequests(data.requests || []);
+      } else {
+        console.error('Failed to fetch requests:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+    }
+  };
+
+  const handleRequestMentorship = (mentor) => {
+    setSelectedMentor(mentor);
+    setShowRequestModal(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setRequestForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitRequest = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const response = await fetch('/api/mentorship-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mentorId: selectedMentor.uid,
+          ...requestForm
+        })
+      });
+
+      if (response.ok) {
+        alert('Mentorship request sent successfully!');
+        setShowRequestModal(false);
+        setRequestForm({
+          topic: '',
+          preferredDate: '',
+          preferredTime: '',
+          duration: '1 hour',
+          sessionType: 'In-person',
+          message: ''
+        });
+        fetchMyRequests();
+      } else {
+        alert('Failed to send request');
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      alert('An error occurred');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancelRequest = async (requestId) => {
+    if (!confirm('Are you sure you want to cancel this request?')) return;
+
+    try {
+      const response = await fetch(`/api/mentorship-requests/${requestId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert('Request cancelled successfully');
+        fetchMyRequests();
+      } else {
+        alert('Failed to cancel request');
+      }
+    } catch (error) {
+      console.error('Error cancelling request:', error);
+      alert('An error occurred');
+    }
   };
 
 
@@ -83,78 +133,171 @@ export default function MentorshipPage() {
     <DashboardLayout userType="student">
       <div className={styles.pageHeader}>
         <h1 className={styles.title}>Mentorship</h1>
-        <p className={styles.subtitle}>Find mentors, send mentorship requests, schedule sessions, and message mentors.</p>
+        <p className={styles.subtitle}>Request mentorship sessions from faculty mentors</p>
       </div>
-      <div className={styles.flexRow}>
-        <div className={styles.mentorListCol}>
-          <Card className={styles.mentorListCard}>
-            <CardHeader>
-              <h2 className={styles.sectionTitle}>Available Mentors</h2>
-            </CardHeader>
-            <CardBody>
-              <ul className={styles.mentorList}>
-                {MENTORS.map((mentor) => (
-                  <li key={mentor.id} className={styles.mentorItem}>
-                    <div className={styles.mentorInfo}>
-                      <div className={styles.mentorName}>{mentor.name}</div>
-                      <div className={styles.mentorTitle}>{mentor.title} @ {mentor.company}</div>
-                      <div className={styles.mentorExpertise}>Expertise: {mentor.expertise.join(', ')}</div>
-                      <div className={styles.mentorBio}>{mentor.bio}</div>
-                    </div>
-                    <Button
-                      variant={selectedMentor?.id === mentor.id ? 'secondary' : 'primary'}
-                      onClick={() => setSelectedMentor(mentor)}
-                      className={styles.selectButton}
-                    >
-                      {selectedMentor?.id === mentor.id ? 'Selected' : 'View'}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </CardBody>
-          </Card>
-        </div>
-        <div className={styles.mentorDetailCol}>
-          {selectedMentor && (
-            <Card className={styles.mentorDetailCard}>
-              <CardHeader>
-                <h2 className={styles.mentorName}>{selectedMentor.name}</h2>
-                <div className={styles.mentorTitle}>{selectedMentor.title} @ {selectedMentor.company}</div>
-              </CardHeader>
-              <CardBody>
-                <div className={styles.mentorExpertise}><b>Expertise:</b> {selectedMentor.expertise.join(', ')}</div>
-                <div className={styles.mentorBio}>{selectedMentor.bio}</div>
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Available Sessions</h3>
-                  <ul className={styles.slotList}>
-                    {selectedMentor.availableSlots.map((slot, i) => (
-                      <li key={i} className={styles.slotItem}>
-                        <span className={styles.sessionTime}>{slot}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className={styles.sessionNote}>
-                    <em>Mentors set their available times. Students can view but not schedule directly.</em>
+
+      {/* My Requests Section */}
+      <Card className={styles.requestsCard}>
+        <CardHeader>
+          <h2>My Mentorship Requests</h2>
+        </CardHeader>
+        <CardBody>
+          {myRequests.length === 0 ? (
+            <p>No mentorship requests yet. Select a mentor below to request a session.</p>
+          ) : (
+            <div className={styles.requestsList}>
+              {myRequests.map((request) => (
+                <div key={request.id} className={styles.requestItem}>
+                  <div className={styles.requestHeader}>
+                    <h3>{request.topic}</h3>
+                    <span className={`${styles.statusBadge} ${styles[request.status]}`}>
+                      {request.status}
+                    </span>
                   </div>
+                  <p><strong>Mentor:</strong> {request.mentorName}</p>
+                  <p><strong>Preferred Date:</strong> {request.preferredDate} {request.preferredTime}</p>
+                  <p><strong>Duration:</strong> {request.duration}</p>
+                  <p><strong>Type:</strong> {request.sessionType}</p>
+                  {request.scheduledDate && (
+                    <p className={styles.scheduled}>
+                      <strong>Scheduled:</strong> {request.scheduledDate} {request.scheduledTime}
+                    </p>
+                  )}
+                  {request.status === 'pending' && (
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => handleCancelRequest(request.id)}
+                      className={styles.cancelBtn}
+                    >
+                      Cancel Request
+                    </Button>
+                  )}
                 </div>
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Mentorship Request</h3>
-                  <Button
-                    variant="primary"
-                    onClick={handleRequest}
-                    disabled={requestSent === true || requestSent === 'sending'}
-                    className={styles.requestButton}
-                  >
-                    {requestSent === 'sending' ? 'Sending…' : requestSent === true ? 'Request Sent!' : 'Send Request'}
-                  </Button>
-                  {requestError && <div style={{ color: 'red', marginTop: 6 }}>{requestError}</div>}
-                </div>
-                {/* Message Mentor section removed as requested */}
-              </CardBody>
-            </Card>
+              ))}
+            </div>
           )}
+        </CardBody>
+      </Card>
+
+      {/* Available Mentors */}
+      <Card className={styles.mentorsCard}>
+        <CardHeader>
+          <h2>Available Faculty Mentors</h2>
+        </CardHeader>
+        <CardBody>
+          {loading ? (
+            <p>Loading mentors...</p>
+          ) : mentors.length === 0 ? (
+            <p>No faculty mentors available at the moment.</p>
+          ) : (
+            <div className={styles.mentorsList}>
+              {mentors.map((mentor) => (
+                <div key={mentor.uid} className={styles.mentorCard}>
+                  <h3>{mentor.fullName || `${mentor.firstName} ${mentor.lastName}`}</h3>
+                  <p><strong>Department:</strong> {mentor.department}</p>
+                  <p><strong>Specialization:</strong> {mentor.specialization}</p>
+                  {mentor.bio && <p className={styles.bio}>{mentor.bio}</p>}
+                  {mentor.officeLocation && <p><strong>Office:</strong> {mentor.officeLocation}</p>}
+                  <Button onClick={() => handleRequestMentorship(mentor)}>
+                    Request Mentorship
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* Request Modal */}
+      {showRequestModal && selectedMentor && (
+        <div className={styles.modal} onClick={() => setShowRequestModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2>Request Mentorship Session</h2>
+            <p><strong>Mentor:</strong> {selectedMentor.fullName || `${selectedMentor.firstName} ${selectedMentor.lastName}`}</p>
+            
+            <form onSubmit={handleSubmitRequest} className={styles.requestForm}>
+              <div className={styles.formGroup}>
+                <label>Topic/Purpose *</label>
+                <input
+                  type="text"
+                  name="topic"
+                  value={requestForm.topic}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., Career Guidance, OJT Concerns"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Preferred Date *</label>
+                <input
+                  type="date"
+                  name="preferredDate"
+                  value={requestForm.preferredDate}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Preferred Time</label>
+                <input
+                  type="time"
+                  name="preferredTime"
+                  value={requestForm.preferredTime}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Duration</label>
+                <select
+                  name="duration"
+                  value={requestForm.duration}
+                  onChange={handleInputChange}
+                >
+                  <option value="30 mins">30 minutes</option>
+                  <option value="1 hour">1 hour</option>
+                  <option value="1.5 hours">1.5 hours</option>
+                  <option value="2 hours">2 hours</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Session Type</label>
+                <select
+                  name="sessionType"
+                  value={requestForm.sessionType}
+                  onChange={handleInputChange}
+                >
+                  <option value="In-person">In-person</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Additional Message</label>
+                <textarea
+                  name="message"
+                  value={requestForm.message}
+                  onChange={handleInputChange}
+                  rows="3"
+                  placeholder="Any additional information for your mentor"
+                />
+              </div>
+
+              <div className={styles.formActions}>
+                <Button type="button" variant="secondary" onClick={() => setShowRequestModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Sending...' : 'Send Request'}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </DashboardLayout>
   );
 }

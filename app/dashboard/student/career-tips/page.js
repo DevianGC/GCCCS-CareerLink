@@ -1,133 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout';
 import styles from './career-tips.module.css';
 
 export default function CareerTipsPage() {
-  // Mock data for career tips
-  const [tips, setTips] = useState([
-    {
-      id: 1,
-      title: 'Mastering the Technical Interview',
-      category: 'Interviews',
-      author: 'Sarah Johnson',
-      authorRole: 'Senior Recruiter at TechCorp',
-      date: '2023-10-10',
-      readTime: '5 min read',
-      content: `
-        <p>Technical interviews can be intimidating, but with the right preparation, you can showcase your skills effectively.</p>
-        <h3>Key Strategies:</h3>
-        <ul>
-          <li>Practice common coding problems on platforms like LeetCode or HackerRank</li>
-          <li>Review fundamental data structures and algorithms</li>
-          <li>Explain your thought process clearly as you solve problems</li>
-          <li>Ask clarifying questions before diving into solutions</li>
-          <li>Prepare examples of past projects that demonstrate your technical abilities</li>
-        </ul>
-        <p>Remember, interviewers are often more interested in how you approach problems than whether you get the perfect answer immediately.</p>
-      `,
-      image: '/images/tips/technical-interview.jpg',
-      featured: true,
-    },
-    {
-      id: 2,
-      title: 'Building a Professional Portfolio',
-      category: 'Career Development',
-      author: 'Michael Chen',
-      authorRole: 'UX Design Lead at DesignHub',
-      date: '2023-10-05',
-      readTime: '7 min read',
-      content: `
-        <p>A strong portfolio is essential for showcasing your skills to potential employers.</p>
-        <h3>Portfolio Best Practices:</h3>
-        <ul>
-          <li>Focus on quality over quantity - include your best 4-6 projects</li>
-          <li>For each project, explain the problem, your approach, and the outcome</li>
-          <li>Include visual elements like screenshots, diagrams, or prototypes</li>
-          <li>Highlight your specific contributions for team projects</li>
-          <li>Keep your portfolio updated with recent work</li>
-        </ul>
-        <p>Your portfolio should tell a story about who you are as a professional and what unique value you bring.</p>
-      `,
-      image: '/images/tips/portfolio.jpg',
-      featured: true,
-    },
-    {
-      id: 3,
-      title: 'Networking Strategies for Introverts',
-      category: 'Networking',
-      author: 'Emily Rodriguez',
-      authorRole: 'Career Coach',
-      date: '2023-09-28',
-      readTime: '4 min read',
-      content: `
-        <p>Networking doesn't have to be overwhelming, even if you're an introvert.</p>
-        <h3>Introvert-Friendly Networking Tips:</h3>
-        <ul>
-          <li>Prepare talking points and questions in advance</li>
-          <li>Set small, achievable goals (e.g., talk to three new people)</li>
-          <li>Take breaks when needed to recharge</li>
-          <li>Follow up with meaningful, personalized messages</li>
-          <li>Consider online networking through LinkedIn or industry forums</li>
-        </ul>
-        <p>Remember that quality connections often matter more than quantity.</p>
-      `,
-      image: '/images/tips/networking.jpg',
-      featured: false,
-    },
-    {
-      id: 4,
-      title: 'Resume Keywords That Get You Noticed',
-      category: 'Job Applications',
-      author: 'David Park',
-      authorRole: 'HR Director',
-      date: '2023-09-20',
-      readTime: '6 min read',
-      content: `
-        <p>With many companies using ATS (Applicant Tracking Systems), using the right keywords is crucial.</p>
-        <h3>Keyword Optimization Tips:</h3>
-        <ul>
-          <li>Study the job description and mirror key terms</li>
-          <li>Include industry-specific technical skills and certifications</li>
-          <li>Use action verbs that demonstrate impact (e.g., implemented, increased, reduced)</li>
-          <li>Incorporate both spelled-out terms and acronyms (e.g., "Search Engine Optimization (SEO)")</li>
-          <li>Update keywords for each application to match the specific role</li>
-        </ul>
-        <p>Remember to use keywords naturally and honestly - don't claim skills you don't have.</p>
-      `,
-      image: '/images/tips/resume.jpg',
-      featured: false,
-    },
-    {
-      id: 5,
-      title: 'Negotiating Your First Job Offer',
-      category: 'Salary Negotiation',
-      author: 'Alex Thompson',
-      authorRole: 'Career Advisor',
-      date: '2023-09-15',
-      readTime: '8 min read',
-      content: `
-        <p>Many new graduates accept their first offer without negotiation, potentially leaving money on the table.</p>
-        <h3>Negotiation Strategies for Beginners:</h3>
-        <ul>
-          <li>Research salary ranges for similar positions in your area</li>
-          <li>Consider the entire compensation package, not just salary</li>
-          <li>Practice your negotiation conversation with a friend</li>
-          <li>Be professional and express enthusiasm for the role</li>
-          <li>Have a specific number in mind based on your research</li>
-        </ul>
-        <p>Even a small increase in starting salary can compound significantly over your career.</p>
-      `,
-      image: '/images/tips/negotiation.jpg',
-      featured: false,
-    },
-  ]);
-
-  // State for category filter
+  const [tips, setTips] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTip, setActiveTip] = useState(null);
+
+  useEffect(() => {
+    fetchCareerTips();
+  }, []);
+
+  const fetchCareerTips = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/career-tips', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setTips(data.tips || []);
+      }
+    } catch (error) {
+      console.error('Error fetching career tips:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get unique categories
   const categories = ['All', ...new Set(tips.map(tip => tip.category))];
@@ -151,7 +52,11 @@ export default function CareerTipsPage() {
           <h1 className={styles.careerTipsTitle}>Career Tips & Resources</h1>
         </div>
 
-        {!activeTip ? (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <p>Loading career tips...</p>
+          </div>
+        ) : !activeTip ? (
           <>
             {/* Featured tips carousel */}
             {featuredTips.length > 0 && (

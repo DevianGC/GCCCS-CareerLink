@@ -6,7 +6,7 @@ import styles from './faculty-mentor-dashboard.module.css';
 
 export default function FacultyMentorDashboard() {
   const [mentorData, setMentorData] = useState({
-    name: 'Armilyn Martinez',
+    name: '',
     totalMentees: 0,
     activeSessions: 0,
     completedSessions: 0,
@@ -15,73 +15,104 @@ export default function FacultyMentorDashboard() {
 
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [myMentees, setMyMentees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Function to load and process sessions data
-  const loadSessionsData = () => {
-    // Load sessions from localStorage
-    const savedSessions = localStorage.getItem('facultyMentorSessions');
-    let allSessions = { upcoming: [], completed: [] };
-    
-    if (savedSessions) {
-      allSessions = JSON.parse(savedSessions);
-    }
-
-    // Set upcoming sessions (limit to 3 for dashboard)
-    setUpcomingSessions(allSessions.upcoming.slice(0, 3).map(session => ({
-      id: session.id,
-      studentName: session.studentName,
-      topic: session.topic,
-      date: session.date,
-      time: session.time,
-      type: session.type
-    })));
-
-    // Derive unique mentees from all sessions (both upcoming and completed)
-    const allSessionsArray = [...allSessions.upcoming, ...allSessions.completed];
-    const menteeMap = new Map();
-
-    allSessionsArray.forEach(session => {
-      const key = session.studentId || session.studentName;
-      if (!menteeMap.has(key)) {
-        // Find the most recent session for this student
-        const studentSessions = allSessionsArray.filter(
-          s => (s.studentId || s.studentName) === key
-        );
-        
-        // Sort by date to get the most recent
-        const sortedSessions = studentSessions.sort((a, b) => 
-          new Date(b.date) - new Date(a.date)
-        );
-        
-        const completedCount = studentSessions.filter(s => 
-          allSessions.completed.some(cs => cs.id === s.id)
-        ).length;
-        
-        const totalCount = studentSessions.length;
+  // Function to load and process sessions data from database
+  const loadSessionsData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch mentorship requests from database
+      const res = await fetch('/api/mentorship-requests', { cache: 'no-store' });
+      if (!res.ok) {
+        throw new Error('Failed to fetch requests');
+      }
+      
+      const data = await res.json();
+      const requests = data.requests || [];
+      
+      // Filter for approved requests (upcoming sessions)
+      const approvedRequests = requests.filter(r => r.status === 'approved');
+      
+      // Set upcoming sessions (limit to 3 for dashboard, sorted by date)
+      const upcomingSessionsData = approvedRequests
+        .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate))
+        .slice(0, 3)
+        .map(request => ({
+          id: request.id,
+          studentName: request.studentName || 'Unknown Student',
+          topic: request.topic || 'Mentorship Session',
+          date: request.scheduledDate || 'TBD',
+          time: request.scheduledTime || 'TBD',
+          type: request.sessionType || 'General'
+        }));
+      
+      setUpcomingSessions(upcomingSessionsData);
+      
+      // Derive unique mentees from all requests (approved and completed)
+      const allRequests = requests.filter(r => r.status === 'approved' || r.status === 'completed');
+      const menteeMap = new Map();
+      
+      // Fetch student details for each unique student
+      const studentIds = [...new Set(allRequests.map(r => r.studentId))].filter(Boolean);
+      
+      for (const studentId of studentIds) {
+        const studentRequests = allRequests.filter(r => r.studentId === studentId);
+        const completedCount = studentRequests.filter(r => r.status === 'completed').length;
+        const totalCount = studentRequests.length;
         const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-        menteeMap.set(key, {
-          id: key,
-          name: session.studentName,
-          year: '3rd Year', // Default - would come from student profile in real app
-          major: 'Information Technology', // Default - would come from student profile
-          ojtStatus: progress > 75 ? 'Completed' : progress > 30 ? 'In Progress' : 'Not Started',
-          lastSession: sortedSessions[0].date,
+        
+        // Find most recent session
+        const sortedRequests = studentRequests.sort((a, b) => 
+          new Date(b.scheduledDate || b.createdAt) - new Date(a.scheduledDate || a.createdAt)
+        );
+        
+        const mostRecent = sortedRequests[0];
+        
+        // Fetch student profile
+        let studentProfile = null;
+        try {
+          const studentRes = await fetch(`/api/students/${studentId}`, { cache: 'no-store' });
+          if (studentRes.ok) {
+            const studentData = await studentRes.json();
+            studentProfile = studentData.student;
+          }
+        } catch (err) {
+          console.error(`Error fetching student ${studentId}:`, err);
+        }
+        
+        menteeMap.set(studentId, {
+          id: studentId,
+          name: mostRecent.studentName || studentProfile?.fullName || 'Unknown Student',
+          year: studentProfile?.yearLevel || 'N/A',
+          major: studentProfile?.program || 'N/A',
+          ojtStatus: progress >= 75 ? 'Completed' : progress >= 30 ? 'In Progress' : 'Not Started',
+          lastSession: mostRecent.scheduledDate || mostRecent.createdAt?.split('T')[0] || 'N/A',
           progress: progress
         });
       }
-    });
-
-    setMyMentees(Array.from(menteeMap.values()));
-
-    // Update stats
-    setMentorData(prev => ({
-      ...prev,
-      totalMentees: menteeMap.size,
-      activeSessions: allSessions.upcoming.length,
-      completedSessions: allSessions.completed.length,
-      pendingFeedback: allSessions.completed.filter(s => !s.feedback || s.feedback === 'No feedback provided').length
-    }));
+      
+      setMyMentees(Array.from(menteeMap.values()));
+      
+      // Calculate stats
+      const completedRequests = requests.filter(r => r.status === 'completed');
+      const pendingFeedbackCount = completedRequests.filter(r => 
+        !r.feedback || r.feedback.trim() === '' || r.feedback === 'No feedback provided'
+      ).length;
+      
+      setMentorData(prev => ({
+        ...prev,
+        totalMentees: menteeMap.size,
+        activeSessions: approvedRequests.length,
+        completedSessions: completedRequests.length,
+        pendingFeedback: pendingFeedbackCount
+      }));
+      
+    } catch (error) {
+      console.error('Error loading sessions data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -94,7 +125,7 @@ export default function FacultyMentorDashboard() {
         const res = await fetch('/api/profile', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          const user = data?.user;
+          const user = data?.profile || data?.user;
           if (user) {
             const firstName = user.firstName || '';
             const lastName = user.lastName || '';
@@ -114,30 +145,17 @@ export default function FacultyMentorDashboard() {
 
     fetchUserProfile();
 
-    // Listen for storage changes (when sessions are updated in another tab/page)
-    const handleStorageChange = (e) => {
-      if (e.key === 'facultyMentorSessions') {
-        loadSessionsData();
-      }
-    };
-
-    // Listen for custom event when returning to this page
+    // Refresh data when page becomes visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         loadSessionsData();
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Also listen for focus event
-    window.addEventListener('focus', loadSessionsData);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', loadSessionsData);
     };
   }, []);
 
@@ -213,7 +231,9 @@ export default function FacultyMentorDashboard() {
         <div className={styles.section}>
           <h2>Upcoming Sessions</h2>
           <div className={styles.sessionsList}>
-            {upcomingSessions.length > 0 ? (
+            {loading ? (
+              <p className={styles.emptyState}>Loading sessions...</p>
+            ) : upcomingSessions.length > 0 ? (
               upcomingSessions.map((session) => (
                 <div key={session.id} className={styles.sessionCard}>
                   <div className={styles.sessionHeader}>
@@ -259,7 +279,15 @@ export default function FacultyMentorDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {myMentees.map((mentee) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>Loading mentees...</td>
+                  </tr>
+                ) : myMentees.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>No mentees yet</td>
+                  </tr>
+                ) : myMentees.map((mentee) => (
                   <tr key={mentee.id}>
                     <td className={styles.menteeName}>{mentee.name}</td>
                     <td>{mentee.year}</td>

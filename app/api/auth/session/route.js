@@ -13,6 +13,36 @@ export async function POST(req) {
     }
 
     const decoded = await adminAuth.verifyIdToken(idToken);
+    
+    // Ensure user profile document exists/updated and get role
+    const uid = decoded.uid;
+    let userRole = 'student'; // default role
+    
+    if (profile && typeof profile === 'object') {
+      userRole = profile.role || 'student';
+      
+      // Prepare the profile data, keeping all fields from registration
+      const profileData = {
+        uid,
+        email: profile.email || decoded.email || '',
+        role: userRole,
+        createdAt: decoded.auth_time ? new Date(decoded.auth_time * 1000).toISOString() : new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...profile // Spread all profile fields to preserve employer/student/faculty data
+      };
+      
+      await adminDb.collection('users').doc(uid).set(profileData, { merge: true });
+    } else {
+      // Fetch existing role from Firestore
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        userRole = userDoc.data()?.role || 'student';
+      }
+    }
+    
+    // Set custom claims with role
+    await adminAuth.setCustomUserClaims(uid, { role: userRole });
+    
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn: SESSION_EXPIRES_IN_MS });
 
     // Set HTTP-only session cookie
@@ -25,24 +55,9 @@ export async function POST(req) {
       path: '/',
     });
 
-    // Ensure user profile document exists/updated
-    const uid = decoded.uid;
-    if (profile && typeof profile === 'object') {
-      const { firstName, lastName, email, role = 'student' } = profile;
-      await adminDb.collection('users').doc(uid).set({
-        uid,
-        firstName: firstName || '',
-        lastName: lastName || '',
-        fullName: `${firstName || ''} ${lastName || ''}`.trim(),
-        email: email || decoded.email || '',
-        role,
-        createdAt: decoded.auth_time ? new Date(decoded.auth_time * 1000).toISOString() : new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
-    }
-
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
+    console.error('Session creation error:', err);
     return new Response(JSON.stringify({ error: err.message }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 }

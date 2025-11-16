@@ -19,6 +19,7 @@ export default function EmployerDashboard() {
   const [recentApplications, setRecentApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [companyName, setCompanyName] = useState('');
 
   // Get current user
   useEffect(() => {
@@ -28,6 +29,30 @@ export default function EmployerDashboard() {
       }
     });
     return () => unsubscribe?.();
+  }, []);
+
+  // Fetch employer profile
+  useEffect(() => {
+    const fetchEmployerProfile = async () => {
+      try {
+        const res = await fetch('/api/profile', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const user = data?.profile || data?.user;
+          if (user) {
+            // For employers, prioritize companyName over fullName
+            const name = user.role === 'employer' 
+              ? (user.companyName || user.fullName || user.email || 'Employer')
+              : (user.fullName || user.companyName || user.email || 'Employer');
+            setCompanyName(name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching employer profile:', error);
+      }
+    };
+
+    fetchEmployerProfile();
   }, []);
 
   // Real-time listener for ALL active jobs (same as career office)
@@ -219,7 +244,7 @@ export default function EmployerDashboard() {
     <DashboardLayout userType="employer">
       <div className={styles.dashboardContainer}>
         <div className={styles.dashboardHeader}>
-          <h1 className={styles.pageTitle}>Employer Dashboard</h1>
+          <h1 className={styles.pageTitle}>Welcome{companyName ? `, ${companyName}` : ''}!</h1>
           <p className={styles.pageSubtitle}>Manage your job postings and track applications</p>
         </div>
 

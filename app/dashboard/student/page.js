@@ -15,6 +15,7 @@ export default function StudentDashboard() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [userName, setUserName] = useState('');
 
   // Get current user ID
   useEffect(() => {
@@ -24,6 +25,29 @@ export default function StudentDashboard() {
       }
     });
     return () => unsubscribe();
+  }, []);
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch('/api/profile', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const user = data?.profile || data?.user;
+          if (user) {
+            const firstName = user.firstName || '';
+            const lastName = user.lastName || '';
+            const fullName = user.fullName || `${firstName} ${lastName}`.trim();
+            setUserName(fullName || user.email || 'Student');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
   }, []);
 
   // Fetch recent jobs with real-time updates
@@ -153,12 +177,6 @@ export default function StudentDashboard() {
     return () => unsubscribe();
   }, [currentUserId]);
 
-  const careerTips = [
-    { id: 1, title: 'How to Ace Your Technical Interview', category: 'Interviews' },
-    { id: 2, title: 'Building a Professional Portfolio', category: 'Career Development' },
-    { id: 3, title: 'Networking Tips for New Graduates', category: 'Networking' },
-  ];
-
   return (
     <DashboardLayout userType="student">
       <div className={styles.dashboardGrid}>
@@ -166,7 +184,7 @@ export default function StudentDashboard() {
         <section className={styles.welcomeSection}>
           <Card>
             <CardHeader>
-              <h2 className={styles.welcomeTitle}>Welcome back!</h2>
+              <h2 className={styles.welcomeTitle}>Welcome back{userName ? `, ${userName}` : ''}!</h2>
             </CardHeader>
             <CardBody>
               <Button variant="primary" href="/dashboard/student/profile">

@@ -64,25 +64,33 @@ export default function FacultyMentorLogin() {
         formData.password
       );
 
+      // Create session cookie
+      const idToken = await userCredential.user.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+
       // Verify user role is faculty-mentor
       const response = await fetch('/api/profile');
       const data = await response.json();
 
-      if (data.user?.role === 'faculty-mentor') {
+      if (data.profile?.role === 'faculty-mentor') {
         // Check if account is approved
-        if (data.user?.accountStatus === 'pending') {
+        if (data.profile?.accountStatus === 'pending') {
           setErrors({ 
             general: 'Your account is pending approval from the Career Office. You will be notified via email once approved.' 
           });
           await firebaseAuth.signOut();
-        } else if (data.user?.accountStatus === 'rejected') {
+        } else if (data.profile?.accountStatus === 'rejected') {
           setErrors({ 
             general: 'Your account registration was not approved. Please contact the Career Office for more information.' 
           });
           await firebaseAuth.signOut();
         } else {
-          // Account is approved or has no status (legacy accounts)
-          router.push('/dashboard/faculty-mentor/ojt');
+          // Account is approved or has no status (accounts created by career office)
+          router.push('/dashboard/faculty-mentor');
         }
       } else {
         setErrors({ general: 'Access denied. Faculty mentor credentials required.' });

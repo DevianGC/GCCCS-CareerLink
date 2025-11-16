@@ -346,39 +346,49 @@
 
 .verificationButton {
   display: inline-block;
-  padding: 0.75rem 2rem;
-  background-color: var(--primary-color);
+  padding: 0.875rem 2rem;
+  background-color: #ff8c00;
   color: white;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
   text-decoration: none;
-  transition: all 0.2s ease;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
 }
 
 .verificationButton:hover {
-  background-color: var(--primary-dark);
-  transform: translateY(-1px);
+  background-color: #e67e00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 .resendButton {
-  padding: 0.75rem 2rem;
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 0.875rem 2rem;
+  background-color: white;
+  color: #ff8c00;
+  border: 2px solid #ff8c00;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .resendButton:hover:not(:disabled) {
-  background-color: var(--primary-color);
+  background-color: #ff8c00;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 .resendButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .verificationSuccess {
