@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, where } from 'firebase/firestore';
-import { firebaseDb } from '@/lib/firebaseClient';
+import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { firebaseDb, firebaseAuth } from '@/lib/firebaseClient';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout';
 import styles from './analytics.module.css';
 
@@ -12,6 +12,7 @@ export default function EmployerAnalytics() {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
   
   const [analyticsData, setAnalyticsData] = useState({
     overview: {
@@ -26,11 +27,24 @@ export default function EmployerAnalytics() {
     hiringFunnel: []
   });
 
-  // Fetch jobs from Firebase
+  // Get current user ID
   useEffect(() => {
-    if (!firebaseDb) return;
+    const unsubscribe = firebaseAuth?.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+      }
+    });
+    return () => unsubscribe?.();
+  }, []);
 
-    const jobsQuery = query(collection(firebaseDb, 'jobs'));
+  // Fetch jobs from Firebase - only employer's jobs
+  useEffect(() => {
+    if (!firebaseDb || !currentUserId) return;
+
+    const jobsQuery = query(
+      collection(firebaseDb, 'jobs'),
+      where('employerId', '==', currentUserId)
+    );
     const unsubscribe = onSnapshot(jobsQuery, (snapshot) => {
       const jobsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -40,27 +54,62 @@ export default function EmployerAnalytics() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUserId]);
 
-  // Fetch applications from Firebase
+  // Fetch applications from Firebase - only for employer's jobs
   useEffect(() => {
-    if (!firebaseDb) {
+    if (!firebaseDb || !currentUserId) {
       setLoading(false);
       return;
     }
 
-    const applicationsQuery = query(collection(firebaseDb, 'applications'));
-    const unsubscribe = onSnapshot(applicationsQuery, (snapshot) => {
-      const appsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setApplications(appsData);
-      setLoading(false);
-    });
+    const fetchApplications = async () => {
+      try {
+        // First get all employer's job IDs
+        const jobsSnapshot = await getDocs(
+          query(collection(firebaseDb, 'jobs'), where('employerId', '==', currentUserId))
+        );
+        
+        const jobIds = jobsSnapshot.docs.map(doc => doc.id);
+        
+        if (jobIds.length === 0) {
+          setApplications([]);
+          setLoading(false);
+          return;
+        }
 
-    return () => unsubscribe();
-  }, []);
+        // Fetch applications for those jobs (in batches of 10 due to Firestore 'in' limit)
+        const allApplications = [];
+        
+        for (let i = 0; i < jobIds.length; i += 10) {
+          const batchJobIds = jobIds.slice(i, i + 10);
+          const applicationsQuery = query(
+            collection(firebaseDb, 'applications'),
+            where('jobId', 'in', batchJobIds)
+          );
+
+          const unsubscribe = onSnapshot(applicationsQuery, (snapshot) => {
+            const appsData = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            
+            // Merge with existing applications
+            allApplications.push(...appsData);
+            setApplications(allApplications);
+            setLoading(false);
+          });
+          
+          return () => unsubscribe();
+        }
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [currentUserId]);
 
   // Calculate analytics when data changes
   useEffect(() => {

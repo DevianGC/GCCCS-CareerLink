@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
-import { firebaseDb } from '@/lib/firebaseClient';
+import { firebaseDb, firebaseAuth } from '@/lib/firebaseClient';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout';
 import styles from './applicants.module.css';
 
@@ -12,12 +12,29 @@ export default function EmployerApplicants() {
   const [jobs, setJobs] = useState([]);
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Fetch jobs from Firebase
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Get current user ID
   useEffect(() => {
-    if (!firebaseDb) return;
+    const unsubscribe = firebaseAuth?.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+      }
+    });
+    return () => unsubscribe?.();
+  }, []);
 
-    const jobsQuery = query(collection(firebaseDb, 'jobs'));
+  // Fetch jobs from Firebase - only employer's jobs
+  useEffect(() => {
+    if (!firebaseDb || !currentUserId) return;
+
+    const jobsQuery = query(
+      collection(firebaseDb, 'jobs'),
+      where('employerId', '==', currentUserId)
+    );
     const unsubscribe = onSnapshot(jobsQuery, (snapshot) => {
       const jobsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -27,87 +44,115 @@ export default function EmployerApplicants() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUserId]);
 
-  // Fetch applications with verified users only
+  // Fetch applications with verified users only - only for employer's jobs
   useEffect(() => {
-    if (!firebaseDb) {
+    if (!firebaseDb || !currentUserId) {
       setLoading(false);
       return;
     }
 
-    const applicationsQuery = query(collection(firebaseDb, 'applications'));
+    // First, get all job IDs for this employer
+    const fetchApplications = async () => {
+      try {
+        const jobsSnapshot = await getDocs(
+          query(collection(firebaseDb, 'jobs'), where('employerId', '==', currentUserId))
+        );
+        
+        const jobIds = jobsSnapshot.docs.map(doc => doc.id);
+        
+        if (jobIds.length === 0) {
+          setApplicants([]);
+          setLoading(false);
+          return;
+        }
 
-    const unsubscribe = onSnapshot(applicationsQuery, async (snapshot) => {
-      // Fetch user data for each application and filter verified users
-      const applicantsWithUsers = await Promise.all(
-        snapshot.docs.map(async (doc) => {
-          const appData = doc.data();
-          
-          // Fetch user data
-          if (appData.userId) {
-            try {
-              const userQuery = query(
-                collection(firebaseDb, 'users'),
-                where('__name__', '==', appData.userId)
-              );
-              const userSnapshot = await getDocs(userQuery);
-              
-              if (!userSnapshot.empty) {
-                const userData = userSnapshot.docs[0].data();
+        // Firestore 'in' query limited to 10 items, so we may need multiple queries
+        const applicantsData = [];
+        
+        for (let i = 0; i < jobIds.length; i += 10) {
+          const batchJobIds = jobIds.slice(i, i + 10);
+          const applicationsQuery = query(
+            collection(firebaseDb, 'applications'),
+            where('jobId', 'in', batchJobIds)
+          );
+
+          const unsubscribe = onSnapshot(applicationsQuery, async (snapshot) => {
+            // Fetch user data for each application and filter verified users
+            const applicantsWithUsers = await Promise.all(
+              snapshot.docs.map(async (doc) => {
+                const appData = doc.data();
                 
-                // Include user (checking for verified email or student role)
-                // Students are considered verified if they have a role
-                const isVerified = userData.emailVerified === true || userData.role === 'student';
-                
-                if (isVerified) {
-                  return {
-                    id: doc.id,
-                    name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email || 'Unknown',
-                    email: userData.email || appData.email || 'N/A',
-                    phone: userData.phone || 'N/A',
-                    jobId: appData.jobId,
-                    jobTitle: appData.jobTitle || appData.position || 'N/A',
-                    appliedDate: appData.createdAt?.split('T')[0] || appData.date || 'N/A',
-                    status: appData.status || 'New Application',
-                    experience: userData.yearsOfExperience || userData.graduationYear || 'N/A',
-                    education: userData.major || userData.degree || 'N/A',
-                    skills: Array.isArray(userData.skills) ? userData.skills : [],
-                    resume: appData.resumeName || 'resume.pdf',
-                    resumeData: appData.resumeData,
-                    coverLetter: appData.coverLetter || 'No cover letter provided',
-                    rating: appData.rating || null,
-                    userId: appData.userId
-                  };
+                // Fetch user data
+                if (appData.userId) {
+                  try {
+                    const userQuery = query(
+                      collection(firebaseDb, 'users'),
+                      where('__name__', '==', appData.userId)
+                    );
+                    const userSnapshot = await getDocs(userQuery);
+                    
+                    if (!userSnapshot.empty) {
+                      const userData = userSnapshot.docs[0].data();
+                      
+                      // Include user (checking for verified email or student role)
+                      // Students are considered verified if they have a role
+                      const isVerified = userData.emailVerified === true || userData.role === 'student';
+                      
+                      if (isVerified) {
+                        return {
+                          id: doc.id,
+                          name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email || 'Unknown',
+                          email: userData.email || appData.email || 'N/A',
+                          phone: userData.phone || 'N/A',
+                          jobId: appData.jobId,
+                          jobTitle: appData.jobTitle || appData.position || 'N/A',
+                          appliedDate: appData.createdAt?.split('T')[0] || appData.date || 'N/A',
+                          status: appData.status || 'New Application',
+                          experience: userData.yearsOfExperience || userData.graduationYear || 'N/A',
+                          education: userData.major || userData.degree || 'N/A',
+                          skills: Array.isArray(userData.skills) ? userData.skills : [],
+                          resume: appData.resumeName || 'resume.pdf',
+                          resumeData: appData.resumeData,
+                          coverLetter: appData.coverLetter || 'No cover letter provided',
+                          rating: appData.rating || null,
+                          userId: appData.userId
+                        };
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error fetching user:', error);
+                  }
                 }
-              }
-            } catch (error) {
-              console.error('Error fetching user:', error);
-            }
-          }
-          return null;
-        })
-      );
+                return null;
+              })
+            );
 
-      // Filter out null values (unverified users)
-      const verifiedApplicants = applicantsWithUsers.filter(app => app !== null);
-      
-      // Sort by date (newest first)
-      const sortedApplicants = verifiedApplicants.sort((a, b) => {
-        const dateA = new Date(a.appliedDate);
-        const dateB = new Date(b.appliedDate);
-        return dateB - dateA;
-      });
+            // Filter out null values (unverified users)
+            const verifiedApplicants = applicantsWithUsers.filter(app => app !== null);
+            
+            // Sort by date (newest first)
+            const sortedApplicants = verifiedApplicants.sort((a, b) => {
+              const dateA = new Date(a.appliedDate);
+              const dateB = new Date(b.appliedDate);
+              return dateB - dateA;
+            });
 
-      setApplicants(sortedApplicants);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching applications:', error);
-      setLoading(false);
-    });
+            setApplicants(sortedApplicants);
+            setLoading(false);
+          });
+          
+          return () => unsubscribe();
+        }
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+        setLoading(false);
+      }
+    };
 
-    return () => unsubscribe();
-  }, []);
+    fetchApplications();
+  }, [currentUserId]);
 
   const filteredApplicants = applicants.filter(applicant => {
     const jobMatch = selectedJob === 'all' || applicant.jobId === parseInt(selectedJob);

@@ -42,6 +42,7 @@ export default function CandidateMatching() {
 
     const jobsQuery = query(
       collection(firebaseDb, 'jobs'),
+      where('employerId', '==', currentUserId),
       where('status', '==', 'active')
     );
 
@@ -55,6 +56,23 @@ export default function CandidateMatching() {
       setJobs(jobsData);
     }, (error) => {
       console.error('Error fetching jobs:', error);
+      // Fallback: fetch all jobs and filter client-side
+      const fallbackQuery = query(
+        collection(firebaseDb, 'jobs'),
+        where('employerId', '==', currentUserId)
+      );
+      const fallbackUnsubscribe = onSnapshot(fallbackQuery, (snapshot) => {
+        const jobsData = snapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            title: doc.data().title || 'Untitled Job',
+            department: doc.data().department || doc.data().company || 'N/A',
+            ...doc.data()
+          }))
+          .filter(job => job.status === 'active');
+        setJobs(jobsData);
+      });
+      return () => fallbackUnsubscribe();
     });
 
     return () => unsubscribe();
