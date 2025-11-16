@@ -12,6 +12,7 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState(getAuthConfig().defaultRole);
   const [userName, setUserName] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   
@@ -38,6 +39,8 @@ export default function Navbar() {
         setIsLoggedIn(false);
         setUserRole(authConfig.defaultRole);
         setUserName('');
+      } finally {
+        setLoading(false);
       }
     })();
   }, [pathname, router, authConfig, navConfig]);
@@ -97,7 +100,7 @@ export default function Navbar() {
           <span></span>
         </div>
 
-        {mounted && !isLoggedIn && (
+        {mounted && !loading && !isLoggedIn && (
           <div 
             className={`${styles.navLinks} ${isMenuOpen ? styles.active : ''}`}
             aria-hidden={!isMenuOpen}

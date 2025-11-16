@@ -12,6 +12,8 @@ export default function EmployerRegister() {
   const [currentStep, setCurrentStep] = useState(1);
   const [verificationSent, setVerificationSent] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
   const [formData, setFormData] = useState({
     companyName: '',
     contactFirstName: '',
@@ -123,6 +125,31 @@ export default function EmployerRegister() {
     setErrors({});
   };
 
+  const handleResendVerification = async () => {
+    setResending(true);
+    setResendMessage('');
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: registeredEmail })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResendMessage('Verification email sent! Please check your inbox.');
+      } else {
+        setResendMessage(data.error || 'Failed to resend verification email.');
+      }
+    } catch (error) {
+      setResendMessage('Failed to resend verification email. Please try again.');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -192,9 +219,23 @@ export default function EmployerRegister() {
             <p className={styles.verificationInstructions}>
               Please check your inbox and click the verification link to activate your account.
             </p>
-            <Link href="/employer/login" className={styles.verificationButton}>
-              Go to Login
-            </Link>
+            {resendMessage && (
+              <p className={resendMessage.includes('sent') ? styles.verificationSuccess : styles.verificationError}>
+                {resendMessage}
+              </p>
+            )}
+            <div className={styles.verificationActions}>
+              <button 
+                onClick={handleResendVerification}
+                disabled={resending}
+                className={styles.resendButton}
+              >
+                {resending ? 'Resending...' : 'Resend Verification Email'}
+              </button>
+              <Link href="/employer/login" className={styles.verificationButton}>
+                Go to Login
+              </Link>
+            </div>
           </div>
         </div>
       </div>

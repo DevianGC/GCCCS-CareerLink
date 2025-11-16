@@ -4,33 +4,55 @@
 
 /* Hero Section */
 .heroSection {
-  background-color: var(--primary-color);
+  background-image: url('/ccs1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
-  padding: 0;
+  padding: 2rem 1rem;
   text-align: center;
+  margin-top: 0;
+  padding-top: calc(2rem + 60px);
+  position: relative;
+}
+
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .heroContent {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 2;
 }
 
 .heroTitle {
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: -2rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .heroSubtitle {
-  font-size: 1rem;
-  line-height: 1.4;
-  opacity: 0.9;
-  margin-bottom: 0rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin-bottom: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Events Section */
 .eventsSection {
-  padding: 0.5rem 0;
+  padding: 3rem 1rem;
   background-color: var(--gray-50);
 }
 
@@ -254,28 +276,34 @@
 
 /* CTA Section */
 .ctaSection {
-  padding: 1.5rem 0rem 0rem;
-  background-color: var(--primary-color);
-  color: rgb(0, 0, 0);
+  padding: 4rem 1rem;
+  background: linear-gradient(135deg, #c95715 0%, orange 100%);
+  color: white;
 }
 
 .ctaContent {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+  padding: 0 1rem;
 }
 
 .ctaTitle {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .ctaText {
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.6;
-  margin-bottom: 2rem;
-  opacity: 0.9;
+  margin-bottom: 0;
+  margin-top: 1.5rem;
+  opacity: 1;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .ctaButton {
@@ -284,60 +312,85 @@
   font-size: 1.125rem;
   font-weight: 600; 
   margin-bottom: 1.5rem ;
+  background-color: orange;
 }
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
   .heroSection {
-    padding: 3rem 0;
+    padding: 3rem 1rem;
   }
   
   .heroTitle {
-    font-size: 2.75rem;
+    font-size: 2.25rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1rem;
   }
   
   .eventsSection {
-    padding: 4rem 0;
+    padding: 2.5rem 1rem;
   }
   
   .ctaSection {
-    padding: 4rem 0;
+    padding: 3rem 1rem;
+  }
+  
+  .ctaTitle {
+    font-size: 1.75rem;
   }
 }
 
 @media (max-width: 768px) {
+  .heroSection {
+    padding: 2.5rem 1rem;
+  }
+  
   .heroTitle {
-    font-size: 2.5rem;
-  }
-  
-  .heroSubtitle {
-    font-size: 1.125rem;
-  }
-  
-  .ctaTitle {
     font-size: 2rem;
   }
   
-  .ctaText {
+  .heroSubtitle {
     font-size: 1rem;
+  }
+  
+  .eventsSection {
+    padding: 2rem 1rem;
+  }
+  
+  .ctaSection {
+    padding: 2.5rem 1rem;
+  }
+  
+  .ctaTitle {
+    font-size: 1.5rem;
+  }
+  
+  .ctaText {
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
   .heroSection {
-    padding: 2.5rem 0;
+    padding: 2rem 1rem;
+    padding-top: calc(2rem + 50px);
+    margin-top: 0;
   }
   
   .heroTitle {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
   
   .heroSubtitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
   
   .eventsSection {
-    padding: 3rem 0;
+    padding: 1.5rem 0.75rem;
   }
   
   .eventTitle {
@@ -345,7 +398,16 @@
   }
   
   .ctaSection {
-    padding: 3rem 0;
+    padding: 2rem 1rem;
+  }
+  
+  .ctaTitle {
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  
+  .ctaText {
+    font-size: 0.9rem;
   }
   
   .ctaButton {

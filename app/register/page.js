@@ -21,6 +21,8 @@ export default function Register() {
 
   const [errors, setErrors] = useState({});
   const [verificationSent, setVerificationSent] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +71,31 @@ export default function Register() {
     }
 
     return newErrors;
+  };
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    setResendMessage('');
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResendMessage('Verification email sent! Please check your inbox.');
+      } else {
+        setResendMessage(data.error || 'Failed to resend verification email.');
+      }
+    } catch (error) {
+      setResendMessage('Failed to resend verification email. Please try again.');
+    } finally {
+      setResending(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -144,7 +171,19 @@ export default function Register() {
               <p className={styles.successText}>
                 Please check your inbox and click the verification link to activate your account.
               </p>
+              {resendMessage && (
+                <p className={resendMessage.includes('sent') ? styles.successText : styles.errorText}>
+                  {resendMessage}
+                </p>
+              )}
               <div className={styles.successActions}>
+                <Button 
+                  variant="secondary" 
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                >
+                  {resending ? 'Resending...' : 'Resend Verification Email'}
+                </Button>
                 <Link href="/login">
                   <Button variant="primary">Go to Login</Button>
                 </Link>
